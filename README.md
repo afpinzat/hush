@@ -60,8 +60,8 @@ Sigue estos pasos para ejecutar el proyecto localmente:
 
 ## 📸 Capturas de pantalla
 
-| Biblioteca | Reproductor | Fila de Reproduccion |
-|---|---|---|
+| Biblioteca                                | Reproductor                                | Fila de Reproduccion                                      |
+|-------------------------------------------|--------------------------------------------|-----------------------------------------------------------|
 | ![Biblioteca](screenshots/Biblioteca.png) | ![Reproductor](screenshots/NowPlaying.png) | ![Fila de Reproduccion](screenshots/FilaReproduccion.png) |
 
 ## 📌 Estado actual del proyecto
