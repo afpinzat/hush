@@ -1,5 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.Hush" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.Hush" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorError">@color/error</item>
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:windowBackground">@color/background</item>
+    </style>
+
+    <!-- TextInputLayout con esquinas redondeadas (pill) -->
+    <style name="Widget.Hush.TextInputLayout.RoundedOutlined"
+        parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Hush.InputPill</item>
+        <item name="boxBackgroundColor">@color/surface</item>
+    </style>
+
+    <style name="ShapeAppearance.Hush.InputPill" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">28dp</item>
+    </style>
+
+    <!-- Botón pill -->
+    <style name="Widget.Hush.Button.Pill" parent="Widget.Material3.Button">
+        <item name="cornerRadius">28dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
 </resources>

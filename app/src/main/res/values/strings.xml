@@ -1,3 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Hush</string>
+    <!-- Login -->
+    <string name="link_register">¿No tienes cuenta? <b><font color="#6750A4">Regístrate</font></b></string>
+    <!-- Register -->
+    <string name="link_login">¿Ya tienes cuenta? <b><font color="#6750A4">Inicia sesión</font></b></string>
 </resources>
