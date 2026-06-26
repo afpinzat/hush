@@ -60,6 +60,7 @@ class RegisterActivity : AppCompatActivity() {
         binding.etConfirmPassword.doAfterTextChanged { binding.tilConfirmPassword.error = null }
     }
 
+   //observeState
     private fun observeState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
