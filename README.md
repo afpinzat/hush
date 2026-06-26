@@ -75,21 +75,16 @@ El proyecto se encuentra en una etapa de **MVP funcional**, con las siguientes c
 - ✅ Navegación básica entre la biblioteca y el reproductor sin interrumpir la música.
 
 
-## 📊 Historial de Commits
+## 🚀 Funcionalidades
 
-| Hash | Mensaje                                                            | Fecha |
-|------|--------------------------------------------------------------------|-------|
-| 09e60de | Actualizar README y mejorar UI                                     | 2026-06-26 |
-| bef368f | feat(login): Implementar inicio de sesión y auto-login             | 2026-06-26 |
-| 50620e3 | feat(register): Implementar registro de usuarios                   | 2026-06-26 |
-| e747d80 | feat(auth): Implementar arquitectura de aut~~~~enticación con Firebase | 2026-06-26 |
-| a15a61b | Actualización gitignore                                            | 2026-06-26 |
-| cc33caf | Eliminar archivos que no deben estar en GitHub                     | 2026-06-26 |
-| 4d18460 | Actualiza README y pantallas de la app                             | 2026-06-26 |
-| 9f92cb8 | Merge branch 'master' de https://github.com/afpinzat/hush          | 2026-06-26 |
-| c601467 | Agrega README y carpeta de screenshots                             | 2026-06-26 |
-| 6145aa8 | Update README.md                                                   | 2026-06-26 |
-
+✅ Registro e inicio de sesión con Firebase
+✅ Validaciones en tiempo real (nombre, email, contraseña)
+✅ Auto-login con sesión persistente
+✅ Manejo de errores de Firebase
+✅ Arquitectura limpia con Hilt
+✅ Almacenamiento local con DataStore
+✅ UI con feedback visual (ProgressBar)
+✅ Navegación fluida entre pantallas
 
 ### Próximas iteraciones
 
