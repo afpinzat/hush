@@ -53,7 +53,7 @@ class LoginActivity : AppCompatActivity() {
         binding.etEmail.doAfterTextChanged { binding.tilEmail.error = null }
         binding.etPassword.doAfterTextChanged { binding.tilPassword.error = null }
     }
-
+//observeState
     private fun observeState() {
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
