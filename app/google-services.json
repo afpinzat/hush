@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "105762326618",
+    "project_id": "device-streaming-ea30a76b",
+    "storage_bucket": "device-streaming-ea30a76b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:105762326618:android:6f82634c2d659abdedf063",
+        "android_client_info": {
+          "package_name": "com.pinza.hush"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwacZXGDU7KFo80UwmKD7wHKwdG4GaB4w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
