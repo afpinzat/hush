@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    layout_mini_player.xml
+    Mini reproductor fijo al fondo de Biblioteca y Cola.
+    Se incluye con <include> en las otras pantallas.
+-->
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mini_player_root"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="@color/background"
+    android:paddingHorizontal="16dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Línea separadora superior -->
+    <View
+        android:id="@+id/divider"
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="@color/outline"
+        android:alpha="0.2"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Thumb circular rosa -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/mini_card_thumb"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        app:cardCornerRadius="22dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/thumb_pink"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:layout_gravity="center"
+            android:contentDescription="Nota"
+            app:srcCompat="@drawable/ic_music_note_24"
+            app:tint="@color/white" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Título + artista -->
+    <TextView
+        android:id="@+id/mini_tv_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="@color/on_background"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/mini_btn_play_pause"
+        app:layout_constraintStart_toEndOf="@id/mini_card_thumb"
+        app:layout_constraintTop_toTopOf="@id/mini_card_thumb"
+        tools:text="Blinding Lights" />
+
+    <TextView
+        android:id="@+id/mini_tv_artist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="@color/on_background_variant"
+        app:layout_constraintBottom_toBottomOf="@id/mini_card_thumb"
+        app:layout_constraintEnd_toStartOf="@id/mini_btn_play_pause"
+        app:layout_constraintStart_toEndOf="@id/mini_card_thumb"
+        app:layout_constraintTop_toBottomOf="@id/mini_tv_title"
+        tools:text="The Weeknd" />
+
+    <!-- Botón play/pause circular morado -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/mini_btn_play_pause"
+        style="@style/Widget.Material3.Button.IconButton.Filled"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        app:icon="@drawable/ic_pause_24"
+        app:iconSize="22dp"
+        app:iconTint="@color/white"
+        app:backgroundTint="@color/primary"
+        app:cornerRadius="22dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.pinza.hush.data.repository
+package com.pinza.hush.data.local.repository
 
 import com.pinza.hush.data.datasource.local.UserPreferencesDataSource
 import com.pinza.hush.data.datasource.remote.FirebaseAuthDataSource
