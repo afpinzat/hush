@@ -10,12 +10,12 @@ plugins {
 
 android {
     namespace = "com.pinza.hush"
-    compileSdk = 35
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "com.pinza.hush"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 37
         versionCode = 1
         versionName = "1.0"
 
@@ -51,6 +51,8 @@ kapt {
     correctErrorTypes = true
 }
 
+
+
 dependencies {
 
 
@@ -80,9 +82,15 @@ dependencies {
     // Hilt
     implementation(libs.dagger.hilt)
     implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.room.common.jvm)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.compose.remote.creation.core)
     kapt(libs.dagger.hilt.compiler)
+    kapt(libs.androidx.room.compiler)
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
+    implementation(libs.androidx.recyclerview)
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
@@ -103,4 +111,28 @@ dependencies {
     // Debug
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Media3 / ExoPlayer — reproductor de audio/video de Google
+    implementation("androidx.media3:media3-exoplayer:1.3.1")
+    implementation("androidx.media3:media3-ui:1.3.1")
+    implementation("androidx.media3:media3-session:1.3.1")
+
+// Media support para notificaciones (MediaStyle)
+    implementation("androidx.media:media:1.7.0")
+
+// LifecycleService (para MusicPlayerService)
+    implementation("androidx.lifecycle:lifecycle-service:2.8.2")
+
+    // Coil — para cargar imágenes (portadas)
+    implementation("io.coil-kt:coil:2.6.0")
+
+    implementation("androidx.media3:media3-exoplayer:1.1.1")
+    implementation("androidx.media3:media3-ui:1.1.1")
+    implementation("androidx.media3:media3-common:1.1.1")
+
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
+    implementation("androidx.lifecycle:lifecycle-process:2.6.2")
+    implementation("androidx.media:media:1.6.0")
 }

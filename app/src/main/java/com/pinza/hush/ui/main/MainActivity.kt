@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.hush.app.ui.auth.AuthViewModel
 import com.pinza.hush.databinding.ActivityMainBinding
 import dagger.hilt.android.AndroidEntryPoint
-import com.pinza.hush.ui.auth.LoginActivity
+import com.pinza.hush.ui.activity.LoginActivity
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

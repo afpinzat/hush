@@ -13,9 +13,25 @@
         <item name="android:windowBackground">@color/background</item>
     </style>
 
-    <!-- TextInputLayout con esquinas redondeadas (pill) -->
-    <style name="Widget.Hush.TextInputLayout.RoundedOutlined"
-        parent="Widget.Material3.TextInputLayout.OutlinedBox">
+
+    <!-- ✅ Theme para NowPlayingActivity (translúcido) -->
+    <style name="Theme.Hush.Translucent" parent="Theme.Hush">
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <!-- Campo de búsqueda: sin borde, fondo lavanda, pill -->
+    <style name="Widget.Hush.SearchInputLayout" parent="Widget.Material3.TextInputLayout.FilledBox">
+        <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Hush.InputPill</item>
+        <item name="boxStrokeWidth">0dp</item>
+        <item name="boxStrokeWidthFocused">0dp</item>
+    </style>
+
+    <!-- Campos outlined pill (login/registro) -->
+    <style name="Widget.Hush.TextInputLayout.RoundedOutlined" parent="Widget.Material3.TextInputLayout.OutlinedBox">
         <item name="shapeAppearanceOverlay">@style/ShapeAppearance.Hush.InputPill</item>
         <item name="boxBackgroundColor">@color/surface</item>
     </style>
@@ -25,11 +41,52 @@
         <item name="cornerSize">28dp</item>
     </style>
 
-    <!-- Botón pill -->
+    <!-- Botón filled pill -->
     <style name="Widget.Hush.Button.Pill" parent="Widget.Material3.Button">
         <item name="cornerRadius">28dp</item>
         <item name="android:insetTop">0dp</item>
         <item name="android:insetBottom">0dp</item>
     </style>
+
+    <!-- Botón outlined pill (Guardar orden) -->
+    <style name="Widget.Hush.Button.Pill.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="cornerRadius">28dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+    </style>
+
+    <!-- Estilo para CardViews (playlists) -->
+    <style name="Widget.Hush.CardView" parent="Widget.MaterialComponents.CardView">
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="cardBackgroundColor">@color/surface</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+    </style>
+
+    <!-- Estilo para imágenes redondeadas -->
+    <style name="ShapeAppearance.Hush.RoundedImage" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <!-- Estilo para el drag handle -->
+    <style name="Widget.Hush.DragHandle">
+        <item name="android:src">@drawable/ic_drag_handle</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:padding">4dp</item>
+        <item name="android:scaleType">center</item>
+    </style>
+
+    <!-- Estilo para el indicador de reproducción -->
+    <style name="Widget.Hush.PlayingIndicator">
+        <item name="android:src">@drawable/ic_playing</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:background">@drawable/playing_indicator_bg</item>
+    </style>
+
+    <style name="Widget.Hush" parent="android:Widget">
+        <!-- Estilo base vacío, solo para que exista -->
+    </style>
+
 
 </resources>
