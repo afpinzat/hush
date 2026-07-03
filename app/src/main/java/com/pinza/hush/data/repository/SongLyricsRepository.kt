@@ -1,3 +1,4 @@
+// data/repository/SongLyricsRepository.kt
 package com.pinza.hush.data.repository
 
 import com.pinza.hush.data.local.dao.SongLyricsDao
@@ -21,4 +22,7 @@ class SongLyricsRepository @Inject constructor(
 
     override suspend fun delete(lyrics: SongLyrics) =
         dao.delete(lyrics)
+
+    override suspend fun deleteBySongId(songId: Int) =
+        dao.deleteBySongId(songId)
 }
