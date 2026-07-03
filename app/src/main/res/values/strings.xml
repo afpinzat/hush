@@ -5,4 +5,41 @@
     <string name="link_register">¿No tienes cuenta? <b><font color="#6750A4">Regístrate</font></b></string>
     <!-- Register -->
     <string name="link_login">¿Ya tienes cuenta? <b><font color="#6750A4">Inicia sesión</font></b></string>
+
+    <!-- Playlist -->
+    <string name="playlist_title">Mis Playlists</string>
+    <string name="playlist_empty">No hay playlists creadas</string>
+    <string name="playlist_create">Crear Playlist</string>
+    <string name="playlist_name_hint">Nombre de la playlist</string>
+    <string name="playlist_song_count">%1$d canciones</string>
+    <string name="playlist_song_count_singular">%1$d canción</string>
+
+    <!-- Queue -->
+    <string name="queue_title">Cola de Reproducción</string>
+    <string name="queue_empty">La cola está vacía</string>
+    <string name="queue_clear">Limpiar cola</string>
+    <string name="queue_reorder">Guardar orden</string>
+    <string name="queue_now_playing">Reproduciendo ahora</string>
+    <string name="queue_add">Agregar a cola</string>
+
+    <!-- Lyrics -->
+    <string name="lyrics_title">Letra</string>
+    <string name="lyrics_empty">Sin letra disponible</string>
+    <string name="lyrics_save">Guardar letra</string>
+    <string name="lyrics_delete">Eliminar letra</string>
+    <string name="lyrics_hint">Escribe la letra aquí...</string>
+
+    <!-- Common -->
+    <string name="add">Agregar</string>
+    <string name="remove">Eliminar</string>
+    <string name="save">Guardar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Eliminar</string>
+    <string name="edit">Editar</string>
+    <string name="search">Buscar</string>
+    <string name="loading">Cargando...</string>
+    <string name="error">Error</string>
+    <string name="retry">Reintentar</string>
+    <string name="empty">Vacío</string>
+
 </resources>

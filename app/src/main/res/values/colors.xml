@@ -1,18 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ====== PRIMARIOS ====== -->
     <color name="primary">#6750A4</color>
     <color name="on_primary">#FFFFFF</color>
     <color name="primary_container">#EADDFF</color>
+    <color name="on_primary_container">#1D1B20</color>
     <color name="accent">#D0BCFF</color>
+
+    <!-- ====== FONDO ====== -->
     <color name="background">#FEF7FF</color>
     <color name="on_background">#1C1B1F</color>
     <color name="on_background_variant">#79747E</color>
+
+    <!-- ====== SURFACE ====== -->
     <color name="surface">#FEF7FF</color>
     <color name="on_surface">#1C1B1F</color>
     <color name="surface_variant">#E7E0EC</color>
+    <color name="on_surface_variant">#49454F</color>
+
+    <!-- ====== ERROR ====== -->
     <color name="error">#BA1A1A</color>
     <color name="on_error">#FFFFFF</color>
+    <color name="error_container">#F9DEDC</color>
+    <color name="on_error_container">#410E0B</color>
+
+    <!-- ====== OUTLINE ====== -->
     <color name="outline">#CAC4D0</color>
+    <color name="outline_variant">#CAC4D0</color>
+
+    <!-- ====== THUMBS DE CANCIONES ====== -->
+    <color name="thumb_pink">#F4A8C0</color>
+    <color name="thumb_teal">#80CBC4</color>
+    <color name="thumb_purple">#CE93D8</color>
+    <color name="thumb_orange">#FFB74D</color>
+    <color name="thumb_lavender">#B39DDB</color>
+    <color name="thumb_green">#A5D6A7</color>
+    <color name="thumb_blue">#80DEEA</color>
+    <color name="thumb_default">#B39DDB</color>
+
+    <!-- ====== ELEMENTOS DE LISTA ====== -->
+    <color name="item_active_bg">#F3EEFF</color>
+    <color name="divider_color">#1F000000</color>
+    <color name="card_background">#FEF7FF</color>
+
+    <!-- ====== ARTWORK NOW PLAYING ====== -->
+    <color name="artwork_bg">#E8DEF8</color>
+
+    <!-- ====== BÚSQUEDA ====== -->
+    <color name="search_background">#EDE7F6</color>
+
+    <!-- ====== LETRAS ====== -->
+    <color name="lyrics_bg">#F3EEFF</color>
+    <color name="lyrics_active_line">#E65100</color>
+
+    <!-- ====== BOTONES ====== -->
+    <color name="button_primary">#6750A4</color>
+    <color name="button_text">#FFFFFF</color>
+    <color name="button_outline">#6750A4</color>
+
+    <!-- ====== INDICADOR DE REPRODUCCIÓN ====== -->
+    <color name="playing_indicator">#6750A4</color>
+    <color name="playing_indicator_bg">#1A6750A4</color>
+
+    <!-- ====== TEXTOS ====== -->
+    <color name="text_primary">#1C1B1F</color>
+    <color name="text_secondary">#49454F</color>
+    <color name="text_light">#79747E</color>
+    <color name="text_white">#FFFFFF</color>
+
+    <!-- ====== UTILITARIOS ====== -->
+    <color name="transparent">#00000000</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#FF000000</color>
+
 </resources>

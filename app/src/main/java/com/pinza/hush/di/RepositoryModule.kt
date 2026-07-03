@@ -1,6 +1,16 @@
+// di/RepositoryModule.kt
 package com.pinza.hush.di
 
-import com.pinza.hush.data.repository.*
+import com.pinza.hush.data.repository.PlayerStateRepository
+import com.pinza.hush.data.repository.PlaylistRepository
+import com.pinza.hush.data.repository.ScanResultRepository
+import com.pinza.hush.data.repository.SongLyricsRepository
+import com.pinza.hush.data.repository.SongRepository
+import com.pinza.hush.domain.repository.IPlayerStateRepository
+import com.pinza.hush.domain.repository.IPlaylistRepository
+import com.pinza.hush.domain.repository.IScanResultRepository
+import com.pinza.hush.domain.repository.ISongLyricsRepository
+import com.pinza.hush.domain.repository.ISongRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -14,24 +24,30 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindSongRepository(
-        songRepositoryImpl: SongRepositoryImpl
-    ): SongRepository
+        repository: SongRepository
+    ): ISongRepository
 
     @Binds
     @Singleton
     abstract fun bindPlaylistRepository(
-        playlistRepositoryImpl: PlaylistRepositoryImpl
-    ): PlaylistRepository
+        repository: PlaylistRepository
+    ): IPlaylistRepository
 
     @Binds
     @Singleton
-    abstract fun bindQueueRepository(
-        queueRepositoryImpl: QueueRepositoryImpl
-    ): QueueRepository
+    abstract fun bindPlayerStateRepository(
+        repository: PlayerStateRepository
+    ): IPlayerStateRepository
 
     @Binds
     @Singleton
     abstract fun bindLyricsRepository(
-        lyricsRepositoryImpl: LyricsRepositoryImpl
-    ): LyricsRepository
+        repository: SongLyricsRepository
+    ): ISongLyricsRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindScanRepository(
+        repository: ScanResultRepository
+    ): IScanResultRepository
 }
