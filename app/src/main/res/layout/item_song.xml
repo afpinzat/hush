@@ -18,6 +18,16 @@
     android:paddingHorizontal="16dp"
     android:paddingVertical="10dp">
 
+    <!-- Checkbox (visible solo en modo selección) -->
+    <CheckBox
+        android:id="@+id/cb_select"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Thumb circular con color de fondo -->
     <androidx.cardview.widget.CardView
         android:id="@+id/card_thumb"
@@ -27,7 +37,7 @@
         app:cardElevation="0dp"
         app:cardBackgroundColor="@color/thumb_default"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@id/cb_select"
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
@@ -79,11 +89,25 @@
         android:id="@+id/tv_duration"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="12dp"
         android:textAppearance="?attr/textAppearanceBodySmall"
         android:textColor="@color/on_background_variant"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/btn_menu"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="3:22" />
+
+    <!-- Botón menú 3 puntos -->
+    <ImageButton
+        android:id="@+id/btn_menu"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Más opciones"
+        app:srcCompat="@drawable/ic_more_vert_24"
+        app:tint="@color/on_background_variant"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,6 +1,100 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/root_mini_player"
+    android:layout_width="match_parent"
+    android:layout_height="72dp"
+    android:background="@color/surface"
+    android:elevation="8dp"
+    android:clickable="true"
+    android:focusable="true">
+
+    <!-- Card para el thumbnail -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_thumb"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/primary_container"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_music_note_24"
+            app:tint="@color/on_primary_container" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- ✅ ID: tv_song_title - DEBE EXISTIR -->
+    <TextView
+        android:id="@+id/tv_song_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="@color/on_background"
+        android:textStyle="bold"
+        app:layout_constraintStart_toEndOf="@id/card_thumb"
+        app:layout_constraintEnd_toStartOf="@id/btn_play_pause"
+        app:layout_constraintTop_toTopOf="@id/card_thumb"
+        app:layout_constraintBottom_toTopOf="@id/tv_artist"
+        tools:text="Blinding Lights" />
+
+    <!-- ✅ ID: tv_artist - DEBE EXISTIR -->
+    <TextView
+        android:id="@+id/tv_artist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="@color/on_background_variant"
+        app:layout_constraintStart_toEndOf="@id/card_thumb"
+        app:layout_constraintEnd_toStartOf="@id/btn_play_pause"
+        app:layout_constraintTop_toBottomOf="@id/tv_song_title"
+        app:layout_constraintBottom_toBottomOf="@id/card_thumb"
+        tools:text="The Weeknd" />
+
+    <!-- ✅ ID: btn_play_pause - DEBE EXISTIR -->
+    <ImageButton
+        android:id="@+id/btn_play_pause"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Play/Pause"
+        android:src="@drawable/ic_play_arrow_24"
+        app:tint="@color/primary"
+        app:layout_constraintEnd_toStartOf="@id/btn_next"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_song_title" />
+
+    <!-- ✅ ID: btn_next - DEBE EXISTIR -->
+    <ImageButton
+        android:id="@+id/btn_next"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="12dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Siguiente"
+        android:src="@drawable/ic_skip_next_24"
+        app:tint="@color/on_background_variant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_play_pause" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
