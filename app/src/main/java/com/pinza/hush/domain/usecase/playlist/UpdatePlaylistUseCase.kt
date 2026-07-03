@@ -1,4 +1,17 @@
 package com.pinza.hush.domain.usecase.playlist
 
-class UpdatePlaylistUseCase {
+import com.pinza.hush.data.local.model.Playlist
+import com.pinza.hush.domain.repository.IPlaylistRepository
+import javax.inject.Inject
+
+class UpdatePlaylistUseCase @Inject constructor(
+    private val repository: IPlaylistRepository
+) {
+
+    suspend operator fun invoke(playlist: Playlist) {
+
+        repository.update(playlist)
+
+    }
+
 }

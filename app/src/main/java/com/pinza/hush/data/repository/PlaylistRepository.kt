@@ -1,20 +1,49 @@
-package com.pinza.hush.data.local.repository
+// PlaylistRepository.kt
+package com.pinza.hush.data.repository
 
-import com.pinza.hush.data.model.Playlist
-import com.pinza.hush.data.model.Song
+import com.pinza.hush.data.local.dao.PlaylistDao
+import com.pinza.hush.data.local.model.Playlist
+import com.pinza.hush.data.local.model.PlaylistSong
+import com.pinza.hush.domain.repository.IPlaylistRepository
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-interface PlaylistRepository {
-    fun getAllPlaylists(): Flow<List<Playlist>>
-    suspend fun getPlaylistById(id: Int): Playlist?
-    suspend fun createPlaylist(playlist: Playlist): Long
-    suspend fun updatePlaylist(playlist: Playlist)
-    suspend fun deletePlaylist(playlist: Playlist)
-    fun getSongsForPlaylist(playlistId: Int): Flow<List<Song>>
-    suspend fun addSongToPlaylist(playlistId: Int, songId: Int, position: Int)
-    suspend fun removeSongFromPlaylist(playlistId: Int, songId: Int)
-    suspend fun reorderSong(playlistId: Int, songId: Int, newPosition: Int)
-    suspend fun clearPlaylist(playlistId: Int)
-    suspend fun getSongCount(playlistId: Int): Int
+class PlaylistRepository @Inject constructor(
+    private val dao: PlaylistDao
+) : IPlaylistRepository {
+
+    override fun getPlaylists(): Flow<List<Playlist>> =
+        dao.getPlaylists()
+
+    override suspend fun getPlaylistById(id: Int): Playlist? =
+        dao.getPlaylistById(id)
+
+    override suspend fun insert(playlist: Playlist): Long =
+        dao.insertPlaylist(playlist)
+
+    override suspend fun update(playlist: Playlist) =
+        dao.updatePlaylist(playlist)
+
+    override suspend fun delete(playlist: Playlist) =
+        dao.deletePlaylist(playlist)
+
+    override suspend fun addSong(item: PlaylistSong) =
+        dao.addSongToPlaylist(item)
+
+    override suspend fun removeSong(item: PlaylistSong) =
+        dao.removeSongFromPlaylist(item)
+
+    override suspend fun getPlaylistSongs(playlistId: Int): List<PlaylistSong> =
+        dao.getPlaylistSongs(playlistId)  // ← Este método existe en PlaylistDao
+
+    override suspend fun getSongsInPlaylist(playlistId: Int): List<PlaylistSong> =
+        dao.getPlaylistSongs(playlistId)
+
+    override suspend fun updateSongPosition(playlistId: Int, songId: Int, newPosition: Int) {
+        // Implementar si es necesario
+    }
+
+    override suspend fun getPlaylistSongCount(playlistId: Int): Int {
+        return dao.getPlaylistSongs(playlistId).size
+    }
 }
-

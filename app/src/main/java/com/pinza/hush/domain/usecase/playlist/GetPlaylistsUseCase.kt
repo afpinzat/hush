@@ -1,4 +1,13 @@
 package com.pinza.hush.domain.usecase.playlist
 
-class GetPlaylistsUseCase {
+import com.pinza.hush.domain.repository.IPlaylistRepository
+import javax.inject.Inject
+
+class GetPlaylistsUseCase @Inject constructor(
+    private val repository: IPlaylistRepository
+) {
+
+    operator fun invoke() =
+        repository.getPlaylists()
+
 }

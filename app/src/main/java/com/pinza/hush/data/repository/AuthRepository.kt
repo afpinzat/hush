@@ -1,4 +1,4 @@
-package com.pinza.hush.data.local.repository
+package com.pinza.hush.data.repository
 
 interface AuthRepository {
     suspend fun login(email: String, password: String): Result<Unit>
