@@ -1,286 +1,263 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    activity_now_playing.xml
-    Pantalla: Reproduciendo ahora
-    Fondo: @color/background (#FEF7FF) igual que Biblioteca y Cola
-    - Flecha atrás + menú
-    - Artwork cuadrado redondeado (lavanda)
-    - Título + corazón
-    - Barra de progreso
-    - Controles: prev / play-pause / next
-    - Shuffle / repeat / queue
-    - Letras de la canción
--->
-<ScrollView
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background"
-    android:fillViewport="true">
+    android:paddingHorizontal="24dp"
+    android:paddingBottom="16dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <!-- Toolbar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:layout_marginTop="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/ic_arrow_back_24"
+        app:titleTextColor="@color/on_background" />
+
+    <!-- Artwork: tamaño original -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_artwork"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/artwork_bg"
+        app:layout_constraintDimensionRatio="1:1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintWidth_percent="0.55">
+
+        <ImageView
+            android:id="@+id/iv_artwork"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_gravity="center"
+            android:contentDescription="Portada"
+            app:srcCompat="@drawable/ic_music_note_24"
+            app:tint="@color/primary" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Título -->
+    <TextView
+        android:id="@+id/tv_song_title"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:paddingHorizontal="24dp"
-        android:paddingBottom="32dp">
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceHeadlineSmall"
+        android:textColor="@color/on_background"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/btn_favorite"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/card_artwork"
+        tools:text="Luna Plateada" />
 
-        <!-- ── TOP BAR ── -->
-        <ImageButton
-            android:id="@+id/btn_back"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="16dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Volver"
-            app:srcCompat="@drawable/ic_arrow_back_24"
-            app:tint="@color/on_background"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <ImageButton
+        android:id="@+id/btn_favorite"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Favorito"
+        app:srcCompat="@drawable/ic_favorite_border_24"
+        app:tint="@color/on_background_variant"
+        app:layout_constraintBottom_toBottomOf="@id/tv_song_title"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/tv_song_title" />
 
+    <TextView
+        android:id="@+id/tv_artist"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="?attr/textAppearanceBodyMedium"
+        android:textColor="@color/on_background_variant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_song_title"
+        tools:text="Los Viajeros del Tiempo" />
+
+    <!-- SeekBar -->
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:progressTint="@color/primary"
+        android:thumbTint="@color/primary"
+        android:progressBackgroundTint="@color/outline"
+        android:max="100"
+        android:progress="35"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_artist" />
+
+    <TextView
+        android:id="@+id/tv_current_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="@color/on_background_variant"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/seek_bar"
+        tools:text="1:23" />
+
+    <TextView
+        android:id="@+id/tv_total_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="@color/on_background_variant"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/seek_bar"
+        tools:text="3:47" />
+
+    <!-- Controles: tamaño original -->
+    <ImageButton
+        android:id="@+id/btn_previous"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="20dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Anterior"
+        app:srcCompat="@drawable/ic_skip_previous_24"
+        app:tint="@color/on_background"
+        app:layout_constraintBottom_toBottomOf="@id/btn_play_pause"
+        app:layout_constraintEnd_toStartOf="@id/btn_play_pause"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_current_time" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_play_pause"
+        style="@style/Widget.Material3.Button.IconButton.Filled"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:layout_marginTop="20dp"
+        android:insetTop="0dp"
+        android:insetBottom="0dp"
+        app:icon="@drawable/ic_pause_24"
+        app:iconSize="32dp"
+        app:iconTint="@color/white"
+        app:backgroundTint="@color/primary"
+        app:cornerRadius="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_current_time" />
+
+    <ImageButton
+        android:id="@+id/btn_next"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Siguiente"
+        app:srcCompat="@drawable/ic_skip_next_24"
+        app:tint="@color/on_background"
+        app:layout_constraintBottom_toBottomOf="@id/btn_play_pause"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_play_pause"
+        app:layout_constraintTop_toTopOf="@id/btn_play_pause" />
+
+    <!-- Botones secundarios: tamaño original -->
+    <ImageButton
+        android:id="@+id/btn_shuffle"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Aleatorio"
+        app:layout_constraintBottom_toBottomOf="@id/btn_repeat"
+        app:layout_constraintEnd_toStartOf="@id/btn_repeat"
+        app:layout_constraintHorizontal_chainStyle="spread"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_play_pause"
+        app:srcCompat="@drawable/ic_shuffle_24"
+        app:tint="@color/on_background_variant" />
+
+    <ImageButton
+        android:id="@+id/btn_repeat"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Repetir"
+        app:layout_constraintEnd_toStartOf="@id/btn_queue"
+        app:layout_constraintStart_toEndOf="@id/btn_shuffle"
+        app:layout_constraintTop_toBottomOf="@id/btn_play_pause"
+        app:srcCompat="@drawable/ic_repeat_24"
+        app:tint="@color/on_background_variant" />
+
+    <ImageButton
+        android:id="@+id/btn_queue"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="16dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Cola"
+        app:layout_constraintBottom_toBottomOf="@id/btn_repeat"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_repeat"
+        app:layout_constraintTop_toBottomOf="@id/btn_play_pause"
+        app:srcCompat="@drawable/ic_queue_music_24"
+        app:tint="@color/on_background_variant" />
+
+    <!-- ✅ LETRAS - único elemento que cambia: se adapta al espacio sobrante -->
+    <!-- height=0dp + top constraint tras btn_shuffle + bottom constraint al fondo = -->
+    <!-- ocupa exactamente lo que quede libre, sea mucho o poco -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_lyrics"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="24dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:cardCornerRadius="16dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/lyrics_bg"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_shuffle">
+
+        <!-- Sin minHeight/maxHeight: llena exactamente el card, sin scroll global -->
         <TextView
-            android:id="@+id/tv_screen_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Reproduciendo ahora"
-            android:textAppearance="?attr/textAppearanceTitleMedium"
-            android:textColor="@color/on_background"
-            app:layout_constraintBottom_toBottomOf="@id/btn_back"
-            app:layout_constraintEnd_toStartOf="@id/btn_menu"
-            app:layout_constraintStart_toEndOf="@id/btn_back"
-            app:layout_constraintTop_toTopOf="@id/btn_back" />
-
-        <ImageButton
-            android:id="@+id/btn_menu"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Más opciones"
-            app:srcCompat="@drawable/ic_more_vert_24"
-            app:tint="@color/on_background"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/btn_back"
-            app:layout_constraintBottom_toBottomOf="@id/btn_back" />
-
-        <!-- ── ARTWORK ── -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_artwork"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_marginTop="32dp"
-            app:cardCornerRadius="20dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/artwork_bg"
-            app:layout_constraintDimensionRatio="1:1"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_back"
-            app:layout_constraintWidth_percent="0.75">
-
-            <ImageView
-                android:id="@+id/iv_artwork"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:layout_gravity="center"
-                android:contentDescription="Portada"
-                app:srcCompat="@drawable/ic_music_note_24"
-                app:tint="@color/primary" />
-        </androidx.cardview.widget.CardView>
-
-        <!-- ── TÍTULO + CORAZÓN ── -->
-        <TextView
-            android:id="@+id/tv_song_title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:layout_marginEnd="8dp"
-            android:ellipsize="end"
-            android:maxLines="1"
-            android:textAppearance="?attr/textAppearanceHeadlineSmall"
-            android:textColor="@color/on_background"
-            android:textStyle="bold"
-            app:layout_constraintEnd_toStartOf="@id/btn_favorite"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_artwork"
-            tools:text="Luna Plateada" />
-
-        <ImageButton
-            android:id="@+id/btn_favorite"
-            android:layout_width="36dp"
-            android:layout_height="36dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Favorito"
-            app:srcCompat="@drawable/ic_favorite_border_24"
-            app:tint="@color/on_background_variant"
-            app:layout_constraintBottom_toBottomOf="@id/tv_song_title"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tv_song_title" />
-
-        <TextView
-            android:id="@+id/tv_artist"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:ellipsize="end"
-            android:maxLines="1"
+            android:id="@+id/tv_lyrics"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="24dp"
+            android:scrollbars="none"
+            android:lineSpacingMultiplier="1.8"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="@color/on_background_variant"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_song_title"
-            tools:text="Los Viajeros del Tiempo" />
+            tools:text="[00:00.00] Bajo la luna plateada\n[00:10.00] Bailamos sin parar\n[00:20.00] Entre sueños y realidad\n[00:30.00] Tu voz me hace vibrar\n[00:40.00] Y aunque el mundo gire y gire\n[00:50.00] Contigo quiero estar" />
 
-        <!-- ── BARRA DE PROGRESO ── -->
-        <SeekBar
-            android:id="@+id/seek_bar"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:progressTint="@color/primary"
-            android:thumbTint="@color/primary"
-            android:progressBackgroundTint="@color/outline"
-            android:max="100"
-            android:progress="35"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_artist" />
+    </androidx.cardview.widget.CardView>
 
-        <!-- Tiempo transcurrido -->
-        <TextView
-            android:id="@+id/tv_current_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="@color/on_background_variant"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/seek_bar"
-            tools:text="1:23" />
+    <!-- Botón cerrar letras (fullscreen) -->
+    <ImageButton
+        android:id="@+id/btn_close_lyrics"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_close_24"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:visibility="gone"
+        app:tint="@color/on_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Tiempo total -->
-        <TextView
-            android:id="@+id/tv_total_time"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textAppearance="?attr/textAppearanceBodySmall"
-            android:textColor="@color/on_background_variant"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/seek_bar"
-            tools:text="3:47" />
-
-        <!-- ── CONTROLES PRINCIPALES ── -->
-        <!-- Botón anterior -->
-        <ImageButton
-            android:id="@+id/btn_previous"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:layout_marginTop="24dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Anterior"
-            app:srcCompat="@drawable/ic_skip_previous_24"
-            app:tint="@color/on_background"
-            app:layout_constraintBottom_toBottomOf="@id/btn_play_pause"
-            app:layout_constraintEnd_toStartOf="@id/btn_play_pause"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_current_time" />
-
-        <!-- Botón play/pause circular morado grande -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_play_pause"
-            style="@style/Widget.Material3.Button.IconButton.Filled"
-            android:layout_width="64dp"
-            android:layout_height="64dp"
-            android:layout_marginTop="24dp"
-            android:insetTop="0dp"
-            android:insetBottom="0dp"
-            app:icon="@drawable/ic_pause_24"
-            app:iconSize="32dp"
-            app:iconTint="@color/white"
-            app:backgroundTint="@color/primary"
-            app:cornerRadius="32dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_current_time" />
-
-        <!-- Botón siguiente -->
-        <ImageButton
-            android:id="@+id/btn_next"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Siguiente"
-            app:srcCompat="@drawable/ic_skip_next_24"
-            app:tint="@color/on_background"
-            app:layout_constraintBottom_toBottomOf="@id/btn_play_pause"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btn_play_pause"
-            app:layout_constraintTop_toTopOf="@id/btn_play_pause" />
-
-        <!-- ── CONTROLES SECUNDARIOS (shuffle / repeat / queue) ── -->
-        <ImageButton
-            android:id="@+id/btn_shuffle"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Aleatorio"
-            app:srcCompat="@drawable/ic_shuffle_24"
-            app:tint="@color/on_background_variant"
-            app:layout_constraintBottom_toBottomOf="@id/btn_repeat"
-            app:layout_constraintEnd_toStartOf="@id/btn_repeat"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_play_pause" />
-
-        <ImageButton
-            android:id="@+id/btn_repeat"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Repetir"
-            app:srcCompat="@drawable/ic_repeat_24"
-            app:tint="@color/on_background_variant"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@id/btn_shuffle"
-            app:layout_constraintTop_toBottomOf="@id/btn_play_pause" />
-
-        <ImageButton
-            android:id="@+id/btn_queue"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginTop="20dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Cola"
-            app:srcCompat="@drawable/ic_queue_music_24"
-            app:tint="@color/on_background_variant"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_play_pause" />
-
-        <!-- ── LETRA DE LA CANCIÓN ── -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_lyrics"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:cardBackgroundColor="@color/lyrics_bg"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/btn_shuffle">
-
-            <TextView
-                android:id="@+id/tv_lyrics"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="20dp"
-                android:lineSpacingMultiplier="1.8"
-                android:textAppearance="?attr/textAppearanceBodyMedium"
-                android:textColor="@color/on_background_variant"
-                tools:text="Bajo la luna plateada\nBailamos sin parar\nEntre sueños y realidad\nTu voz me hace vibrar\nY aunque el mundo gire y gire\nContigo quiero estar" />
-        </androidx.cardview.widget.CardView>
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,4 +1,4 @@
-package com.pinza.hush.presentation.ui.playlist
+package com.pinza.hush.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

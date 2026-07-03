@@ -1,6 +1,115 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/root_queue_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingVertical="8dp"
+    android:paddingStart="16dp"
+    android:paddingEnd="8dp"
+    android:minHeight="64dp"
+    android:background="?attr/selectableItemBackground">
+
+    <!-- Handle para arrastrar -->
+    <ImageView
+        android:id="@+id/iv_drag_handle"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:src="@drawable/ic_drag_handle_24"
+        android:padding="4dp"
+        android:background="?attr/selectableItemBackground"
+        android:scaleType="center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Thumbnail -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_thumb"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="0dp"
+        app:cardBackgroundColor="@color/primary_container"
+        app:layout_constraintStart_toEndOf="@id/iv_drag_handle"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="♪"
+            android:textSize="20sp"
+            android:textColor="@color/white"
+            android:fontFamily="sans-serif" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Título -->
+    <TextView
+        android:id="@+id/tv_song_title"
+        style="@style/TextAppearance.Material3.BodyLarge"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/on_surface"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toEndOf="@id/card_thumb"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/tv_duration"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="4dp" />
+
+    <!-- Artista -->
+    <TextView
+        android:id="@+id/tv_artist"
+        style="@style/TextAppearance.Material3.BodyMedium"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_secondary"
+        android:maxLines="1"
+        android:ellipsize="end"
+        app:layout_constraintStart_toStartOf="@id/tv_song_title"
+        app:layout_constraintTop_toBottomOf="@id/tv_song_title"
+        app:layout_constraintEnd_toStartOf="@id/tv_duration" />
+
+    <!-- Duración -->
+    <TextView
+        android:id="@+id/tv_duration"
+        style="@style/TextAppearance.Material3.BodySmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/text_secondary"
+        app:layout_constraintEnd_toStartOf="@id/btn_remove"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginEnd="4dp" />
+
+    <!-- Botón eliminar -->
+    <ImageView
+        android:id="@+id/btn_remove"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/ic_close_24"
+        android:padding="4dp"
+        android:background="?attr/selectableItemBackground"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Indicador de reproducción -->
+    <ImageView
+        android:id="@+id/iv_playing_indicator"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/ic_playing_indicator"
+        android:visibility="gone"
+        android:scaleType="center"
+        app:layout_constraintStart_toStartOf="@id/card_thumb"
+        app:layout_constraintTop_toTopOf="@id/card_thumb"
+        app:layout_constraintBottom_toBottomOf="@id/card_thumb"
+        android:layout_marginStart="32dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,56 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    layout_mini_player.xml
-    Mini reproductor fijo al fondo de Biblioteca y Cola.
-    Se incluye con <include> en las otras pantallas.
--->
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/mini_player_root"
+    android:id="@+id/root_mini_player"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:background="@color/background"
-    android:paddingHorizontal="16dp"
+    android:background="@color/surface"
+    android:elevation="8dp"
     android:clickable="true"
     android:focusable="true">
 
-    <!-- Línea separadora superior -->
-    <View
-        android:id="@+id/divider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="@color/outline"
-        android:alpha="0.2"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <!-- Thumb circular rosa -->
+    <!-- Card para el thumbnail -->
     <androidx.cardview.widget.CardView
-        android:id="@+id/mini_card_thumb"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        app:cardCornerRadius="22dp"
+        android:id="@+id/card_thumb"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        app:cardCornerRadius="8dp"
         app:cardElevation="0dp"
-        app:cardBackgroundColor="@color/thumb_pink"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:cardBackgroundColor="@color/primary_container"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <ImageView
-            android:layout_width="22dp"
-            android:layout_height="22dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
             android:layout_gravity="center"
-            android:contentDescription="Nota"
-            app:srcCompat="@drawable/ic_music_note_24"
-            app:tint="@color/white" />
+            android:src="@drawable/ic_music_note_24"
+            app:tint="@color/on_primary_container" />
     </androidx.cardview.widget.CardView>
 
-    <!-- Título + artista -->
+    <!-- ✅ ID: tv_song_title - DEBE EXISTIR -->
     <TextView
-        android:id="@+id/mini_tv_title"
+        android:id="@+id/tv_song_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
@@ -60,13 +44,15 @@
         android:textAppearance="?attr/textAppearanceBodyMedium"
         android:textColor="@color/on_background"
         android:textStyle="bold"
-        app:layout_constraintEnd_toStartOf="@id/mini_btn_play_pause"
-        app:layout_constraintStart_toEndOf="@id/mini_card_thumb"
-        app:layout_constraintTop_toTopOf="@id/mini_card_thumb"
+        app:layout_constraintStart_toEndOf="@id/card_thumb"
+        app:layout_constraintEnd_toStartOf="@id/btn_play_pause"
+        app:layout_constraintTop_toTopOf="@id/card_thumb"
+        app:layout_constraintBottom_toTopOf="@id/tv_artist"
         tools:text="Blinding Lights" />
 
+    <!-- ✅ ID: tv_artist - DEBE EXISTIR -->
     <TextView
-        android:id="@+id/mini_tv_artist"
+        android:id="@+id/tv_artist"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
@@ -75,27 +61,40 @@
         android:maxLines="1"
         android:textAppearance="?attr/textAppearanceBodySmall"
         android:textColor="@color/on_background_variant"
-        app:layout_constraintBottom_toBottomOf="@id/mini_card_thumb"
-        app:layout_constraintEnd_toStartOf="@id/mini_btn_play_pause"
-        app:layout_constraintStart_toEndOf="@id/mini_card_thumb"
-        app:layout_constraintTop_toBottomOf="@id/mini_tv_title"
+        app:layout_constraintStart_toEndOf="@id/card_thumb"
+        app:layout_constraintEnd_toStartOf="@id/btn_play_pause"
+        app:layout_constraintTop_toBottomOf="@id/tv_song_title"
+        app:layout_constraintBottom_toBottomOf="@id/card_thumb"
         tools:text="The Weeknd" />
 
-    <!-- Botón play/pause circular morado -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/mini_btn_play_pause"
-        style="@style/Widget.Material3.Button.IconButton.Filled"
-        android:layout_width="44dp"
-        android:layout_height="44dp"
-        android:insetTop="0dp"
-        android:insetBottom="0dp"
-        app:icon="@drawable/ic_pause_24"
-        app:iconSize="22dp"
-        app:iconTint="@color/white"
-        app:backgroundTint="@color/primary"
-        app:cornerRadius="22dp"
+    <!-- ✅ ID: btn_play_pause - DEBE EXISTIR -->
+    <ImageButton
+        android:id="@+id/btn_play_pause"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Play/Pause"
+        android:src="@drawable/ic_play_arrow_24"
+        app:tint="@color/primary"
+        app:layout_constraintEnd_toStartOf="@id/btn_next"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/tv_song_title" />
+
+    <!-- ✅ ID: btn_next - DEBE EXISTIR -->
+    <ImageButton
+        android:id="@+id/btn_next"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="12dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Siguiente"
+        android:src="@drawable/ic_skip_next_24"
+        app:tint="@color/on_background_variant"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/btn_play_pause" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
