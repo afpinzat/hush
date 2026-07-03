@@ -45,6 +45,70 @@ Hush ofrece una alternativa minimalista: un reproductor MP3 **100% offline**, **
 - **Concurrencia**: Corrutinas de Kotlin
 - **Inyección de dependencias**: Hilt
 
+
+## 🏗️ Arquitectura
+
+### Capas
+- **UI**: Activities + Fragments + ViewBinding
+- **ViewModel**: StateFlow + Coroutines
+- **Domain**: Use Cases + Repository Interfaces
+- **Data**: Repositories + Room DAOs + Entities
+
+### Tecnologías
+- **Persistencia**: Room (SQLite)
+- **Reproducción**: ExoPlayer
+- **Inyección**: Dagger Hilt
+- **Asincronía**: Coroutines + Flow
+- **Notificaciones**: MediaStyle + WorkManager
+
+## 📋 CRUD Completo
+
+| Operación | Pantalla | Método |
+|-----------|----------|--------|
+| **Create** | NowPlaying | `saveLyrics()` |
+| **Read** | Library | `loadSongs()` |
+| **Update** | NowPlaying | `updateSong()` |
+| **Delete** | NowPlaying | `deleteSong()` |
+
+## 🎵 Lógica Avanzada
+
+### Notificaciones MediaStyle
+- Control de reproducción desde la barra de notificaciones
+- Botones: Play/Pause, Next, Previous, Close
+- Barra de progreso sincronizada con la canción
+
+### Cola de reproducción
+- Drag & drop para reordenar
+- Eliminar canciones deslizando
+- Playlist automática
+
+## 🚀 Cómo probar el CRUD
+
+1. **Crear** (CREATE)
+   - Abre una canción en NowPlayingActivity
+   - Toca el botón de menú (3 puntos)
+   - Selecciona "Editar letra"
+   - Escribe la letra y presiona Guardar
+
+2. **Leer** (READ)
+   - Abre la app
+   - Ve la lista de canciones en LibraryActivity
+   - Cada canción muestra título, artista y duración
+
+3. **Actualizar** (UPDATE)
+   - Abre una canción
+   - Toca el menú (3 puntos)
+   - Selecciona "Editar canción"
+   - Cambia título/artista y Guardar
+
+4. **Eliminar** (DELETE)
+   - Abre una canción
+   - Toca el menú (3 puntos)
+   - Selecciona "Eliminar canción"
+   - Confirma en el diálogo
+
+
+
 ## 🚀 Instalación
 
 Sigue estos pasos para ejecutar el proyecto localmente:
