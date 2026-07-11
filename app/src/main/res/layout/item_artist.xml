@@ -4,43 +4,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
-    android:background="?attr/selectableItemBackground">
-
-    <ImageView
-        android:id="@+id/iv_artist_image"
-        android:layout_width="56dp"
-        android:layout_height="56dp"
-        android:src="@drawable/ic_artist_24"
-        android:background="@color/primary_container"
-        android:padding="12dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:shapeAppearanceOverlay="@style/ShapeAppearance.Hush.RoundedImage" />
+    android:padding="16dp">
 
     <TextView
         android:id="@+id/tv_artist_name"
-        style="@style/TextAppearance.Material3.TitleMedium"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textColor="@color/on_surface"
-        android:maxLines="1"
-        android:ellipsize="end"
-        app:layout_constraintStart_toEndOf="@id/iv_artist_image"
-        app:layout_constraintTop_toTopOf="parent"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnSurface"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/tv_song_count"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="8dp" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/tv_song_count"
-        style="@style/TextAppearance.Material3.BodyMedium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_secondary"
+        android:layout_marginStart="8dp"
+        android:textSize="14sp"
+        android:textColor="?attr/colorOnSurfaceVariant"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

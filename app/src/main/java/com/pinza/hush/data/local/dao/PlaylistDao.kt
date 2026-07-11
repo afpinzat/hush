@@ -1,63 +1,43 @@
-// PlaylistDao.kt
 package com.pinza.hush.data.local.dao
 
-import androidx.room.*
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
 import com.pinza.hush.data.local.model.Playlist
-import com.pinza.hush.data.local.model.PlaylistSong
+import com.pinza.hush.data.local.model.PlaylistSongCrossRef
+import com.pinza.hush.data.local.model.PlaylistWithSongs
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface PlaylistDao {
-
-    // ─── PLAYLIST CRUD ─────────────────────────────────────────
+    @Transaction
+    @Query("SELECT * FROM playlists")
+    fun getPlaylistsWithSongs(): Flow<List<PlaylistWithSongs>>
 
     @Insert
     suspend fun insertPlaylist(playlist: Playlist): Long
 
-    @Update
-    suspend fun updatePlaylist(playlist: Playlist)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCrossRef(crossRef: PlaylistSongCrossRef)
+
+    @Query("DELETE FROM playlist_song_join WHERE playlistId = :playlistId AND songId = :songId")
+    suspend fun removeSongFromPlaylist(playlistId: Long, songId: Long)
 
     @Delete
     suspend fun deletePlaylist(playlist: Playlist)
 
-    @Query("SELECT * FROM playlist ORDER BY name")
-    fun getPlaylists(): Flow<List<Playlist>>
+    @Query("UPDATE playlists SET name = :newName WHERE id = :playlistId")
+    suspend fun updatePlaylistName(playlistId: Long, newName: String)
 
-    @Query("SELECT * FROM playlist WHERE id = :id")
-    suspend fun getPlaylistById(id: Int): Playlist?
+    @Query("SELECT COUNT(*) FROM playlist_song_join WHERE playlistId = :playlistId")
+    suspend fun getSongCountInPlaylist(playlistId: Long): Int
 
-    @Query("DELETE FROM playlist")
-    suspend fun deleteAllPlaylists()
+        @Transaction // Necesario cuando usas @Relation
+        @Query("SELECT * FROM playlists WHERE id = :playlistId")
+        fun getPlaylistWithSongs(playlistId: Long): Flow<PlaylistWithSongs>
 
-    // ─── PLAYLIST-SONG RELATIONS ──────────────────────────────
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addSongToPlaylist(item: PlaylistSong)
-
-    @Delete
-    suspend fun removeSongFromPlaylist(item: PlaylistSong)
-
-    @Query("SELECT * FROM playlist_song WHERE playlistId = :playlistId ORDER BY position ASC")
-    suspend fun getPlaylistSongs(playlistId: Int): List<PlaylistSong>
-
-    @Query("SELECT * FROM playlist_song WHERE playlistId = :playlistId AND songId = :songId")
-    suspend fun getPlaylistSong(playlistId: Int, songId: Int): PlaylistSong?
-
-    @Query("SELECT COUNT(*) FROM playlist_song WHERE playlistId = :playlistId")
-    suspend fun getSongCount(playlistId: Int): Int
-
-    @Query("DELETE FROM playlist_song WHERE playlistId = :playlistId")
-    suspend fun clearPlaylistSongs(playlistId: Int)
-
-    @Query("UPDATE playlist_song SET position = :position WHERE playlistId = :playlistId AND songId = :songId")
-    suspend fun updateSongPosition(playlistId: Int, songId: Int, position: Int)
-
-    @Query("SELECT * FROM playlist_song WHERE playlistId = :playlistId AND position >= :fromPosition")
-    suspend fun getSongsFromPosition(playlistId: Int, fromPosition: Int): List<PlaylistSong>
-
-    @Query("DELETE FROM playlist_song WHERE playlistId = :playlistId AND songId = :songId")
-    suspend fun removeSong(playlistId: Int, songId: Int)
-
-    @Query("SELECT MAX(position) FROM playlist_song WHERE playlistId = :playlistId")
-    suspend fun getMaxPosition(playlistId: Int): Int?
 }

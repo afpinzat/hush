@@ -4,39 +4,35 @@ import com.pinza.hush.data.local.model.Song
 import kotlinx.coroutines.flow.StateFlow
 
 interface IPlayerManager {
-    // ─── REPRODUCCIÓN ───────────────────────────────────────────────
+
+    // Estados observables
+    val currentSongState: StateFlow<Song?>
+    val isPlayingState: StateFlow<Boolean>
+    val isBufferingState: StateFlow<Boolean>
+    val repeatModeState: StateFlow<Int>
+    val currentQueueState: StateFlow<List<Song>>
+
+    // Control de reproducción
     fun play(song: Song)
-    fun playSongAt(index: Int)
+    fun playQueue(songs: List<Song>, startIndex: Int = 0)
     fun pause()
     fun resume()
     fun stop()
-    fun next()
-    fun previous()
     fun seekTo(position: Long)
+    fun skipToNext()
+    fun skipToPrevious()
+    fun skipToQueueItem(index: Int)
 
-    // ─── INFORMACIÓN ────────────────────────────────────────────────
+    // Gestión de cola
+    fun addNext(song: Song)
+    fun removeFromQueue(index: Int)
+    fun moveQueueItem(fromIndex: Int, toIndex: Int)
+
+    // Configuración
+    fun toggleRepeatMode()
+
+    // Información del reproductor
+    fun isPlaying(): Boolean
     fun currentPosition(): Long
     fun duration(): Long
-    fun isPlaying(): Boolean
-    fun hasNext(): Boolean
-    fun hasPrevious(): Boolean
-
-    // ─── COLA ────────────────────────────────────────────────────────
-    fun setQueue(songs: List<Song>, startIndex: Int = 0)
-    fun getQueue(): List<Song>
-    fun getCurrentIndex(): Int
-    fun getQueueSize(): Int
-    fun addToQueue(song: Song)
-    fun clearQueue()
-
-    // ─── PERSISTENCIA ────────────────────────────────────────────────
-    fun getStateForPersistence(): Triple<Long, List<Song>, Int>
-    fun restoreState(song: Song, position: Long, queue: List<Song>, queueIndex: Int)
-
-    // ─── ESTADOS OBSERVABLES ────────────────────────────────────────
-    val isPlayingState: StateFlow<Boolean>
-    val currentPositionState: StateFlow<Long>
-    val durationState: StateFlow<Long>
-    val currentSongState: StateFlow<Song?>
-    val isPreparedState: StateFlow<Boolean>
 }

@@ -1,4 +1,4 @@
-package com.pinza.hush.data.datasource.local
+package com.pinza.hush.datasource.local
 
 import android.content.Context
 import androidx.datastore.core.DataStore

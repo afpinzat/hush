@@ -1,107 +1,70 @@
-package com.hush.app.ui.auth
+package com.pinza.hush.ui.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pinza.hush.data.repository.AuthRepository
+import com.google.firebase.auth.FirebaseUser
+import com.pinza.hush.domain.repository.IAuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class AuthUiState(
+    val user: FirebaseUser? = null,
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val isSuccess: Boolean = false
+)
+
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: IAuthRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<AuthUiState>(AuthUiState.Idle)
+    private val _uiState = MutableStateFlow(AuthUiState())
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
     fun login(email: String, password: String) {
-        val emailError = validateEmail(email)
-        val passwordError = validatePasswordBasic(password)
-
-        if (emailError != null || passwordError != null) {
-            _uiState.value = AuthUiState.ValidationError(
-                emailError = emailError,
-                passwordError = passwordError
-            )
-            return
-        }
-
         viewModelScope.launch {
-            _uiState.value = AuthUiState.Loading
-            val result = authRepository.login(email.trim(), password)
-            _uiState.value = if (result.isSuccess) AuthUiState.Success
-            else AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error desconocido")
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            authRepository.login(email, password).collect { result ->
+                result.fold(
+                    onSuccess = { user ->
+                        _uiState.update { it.copy(isLoading = false, user = user, isSuccess = true) }
+                    },
+                    onFailure = { error ->
+                        _uiState.update { it.copy(isLoading = false, error = error.message) }
+                    }
+                )
+            }
         }
     }
 
-    fun register(name: String, email: String, password: String, confirmPassword: String) {
-        val nameError = validateName(name)
-        val emailError = validateEmail(email)
-        val passwordError = validatePasswordBasic(password)
-        val confirmPasswordError = validateConfirmPassword(password, confirmPassword)
-
-        if (nameError != null || emailError != null || passwordError != null || confirmPasswordError != null) {
-            _uiState.value = AuthUiState.ValidationError(
-                nameError = nameError,
-                emailError = emailError,
-                passwordError = passwordError,
-                confirmPasswordError = confirmPasswordError
-            )
-            return
-        }
-
+    fun register(email: String, password: String) {
         viewModelScope.launch {
-            _uiState.value = AuthUiState.Loading
-            val result = authRepository.register(name, email, password)
-            _uiState.value = if (result.isSuccess) AuthUiState.Success
-            else AuthUiState.Error(result.exceptionOrNull()?.message ?: "Error desconocido")
+            _uiState.update { it.copy(isLoading = true, error = null) }
+            authRepository.register(email, password).collect { result ->
+                result.fold(
+                    onSuccess = { user ->
+                        _uiState.update { it.copy(isLoading = false, user = user, isSuccess = true) }
+                    },
+                    onFailure = { error ->
+                        _uiState.update { it.copy(isLoading = false, error = error.message) }
+                    }
+                )
+            }
         }
     }
 
     fun logout() {
-        viewModelScope.launch {
-            authRepository.logout()
-        }
+        authRepository.logout()
+        _uiState.update { it.copy(user = null, isSuccess = false) }
     }
 
-    // ✅ AGREGAR ESTE MÉTODO
-    fun isLoggedIn(): Boolean {
-        return authRepository.isLoggedIn()
-    }
-
-    fun getCurrentUserEmail(): String? {
-        return authRepository.getCurrentUserEmail()
-    }
-
-    fun resetState() {
-        _uiState.value = AuthUiState.Idle
-    }
-
-    // ── VALIDACIONES ──────────────────────────────────────────────────────
-    private fun validateName(name: String): String? = when {
-        name.isBlank() || name.trim().length < 2 -> "Ingresa tu nombre completo"
-        else -> null
-    }
-
-    private fun validateEmail(email: String): String? = when {
-        email.isBlank() -> "El correo es obligatorio"
-        !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() -> "Ingresa un correo válido"
-        else -> null
-    }
-
-    private fun validatePasswordBasic(password: String): String? = when {
-        password.isBlank() -> "La contraseña es obligatoria"
-        password.length < 6 -> "La contraseña debe tener al menos 6 caracteres"
-        else -> null
-    }
-
-    private fun validateConfirmPassword(password: String, confirm: String): String? = when {
-        confirm.isBlank() -> "Confirma tu contraseña"
-        confirm != password -> "Las contraseñas no coinciden"
-        else -> null
+    fun isUserLoggedIn(): Boolean {
+        return authRepository.isUserLoggedIn()
     }
 }

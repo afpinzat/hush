@@ -5,55 +5,38 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pinza.hush.databinding.ItemArtistBinding
+import coil.load
+import com.pinza.hush.R
+import com.pinza.hush.data.local.dao.SongDao
+import com.pinza.hush.databinding.ItemPlaylistBinding
 
-data class ArtistItem(
-    val name: String,
-    val songCount: Int,
-    val imageUrl: String? = null
-)
-
-class ArtistAdapter(
-    private val onArtistClick: (ArtistItem) -> Unit
-) : androidx.recyclerview.widget.ListAdapter<ArtistItem, ArtistAdapter.ArtistViewHolder>(ArtistDiffCallback()) {
+class ArtistAdapter(private val onArtistClick: (SongDao.ArtistSummary) -> Unit) :
+    ListAdapter<SongDao.ArtistSummary, ArtistAdapter.ArtistViewHolder>(ArtistDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArtistViewHolder {
-        val binding = ItemArtistBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = ItemPlaylistBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ArtistViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: ArtistViewHolder, position: Int) {
-        val artist = getItem(position)
-        holder.bind(artist)
+        holder.bind(getItem(position), onArtistClick)
     }
 
-    inner class ArtistViewHolder(
-        private val binding: ItemArtistBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(artist: ArtistItem) {
-            binding.apply {
-                tvArtistName.text = artist.name
-                tvSongCount.text = "${artist.songCount} canciones"
-
-                root.setOnClickListener {
-                    onArtistClick(artist)
-                }
+    class ArtistViewHolder(private val binding: ItemPlaylistBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(artist: SongDao.ArtistSummary, onClick: (SongDao.ArtistSummary) -> Unit) {
+            binding.tvPlaylistName.text = artist.artist
+            binding.tvSongCount.text = "Artista"
+            binding.ivPlaylistArt.load(artist.albumArt) {
+                crossfade(true)
+                placeholder(R.drawable.ic_album_24)
+                error(R.drawable.ic_album_24)
             }
+            binding.root.setOnClickListener { onClick(artist) }
         }
     }
+}
 
-    class ArtistDiffCallback : DiffUtil.ItemCallback<ArtistItem>() {
-        override fun areItemsTheSame(oldItem: ArtistItem, newItem: ArtistItem): Boolean {
-            return oldItem.name == newItem.name
-        }
-
-        override fun areContentsTheSame(oldItem: ArtistItem, newItem: ArtistItem): Boolean {
-            return oldItem == newItem
-        }
-    }
+class ArtistDiffCallback : DiffUtil.ItemCallback<SongDao.ArtistSummary>() {
+    override fun areItemsTheSame(old: SongDao.ArtistSummary, new: SongDao.ArtistSummary) = old.artist == new.artist
+    override fun areContentsTheSame(old: SongDao.ArtistSummary, new: SongDao.ArtistSummary) = old == new
 }

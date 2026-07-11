@@ -1,21 +1,27 @@
 package com.pinza.hush.ui.adapter
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pinza.hush.R
 import com.pinza.hush.data.local.model.Song
 import com.pinza.hush.databinding.ItemSongBinding
+import java.util.Locale
 
 class SongAdapter(
     private val onSongClick: (Song) -> Unit,
-    private val onMenuClick: (Song) -> Unit
+    private val onMoreOptionsClick: (Song) -> Unit
 ) : ListAdapter<Song, SongAdapter.SongViewHolder>(SongDiffCallback()) {
 
-    private var currentPlayingSongId: Int? = null
+    private var currentPlayingId: Long = -1
+
+    fun setCurrentPlayingId(id: Long) {
+        currentPlayingId = id
+        notifyDataSetChanged() 
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SongViewHolder {
         val binding = ItemSongBinding.inflate(
@@ -23,62 +29,65 @@ class SongAdapter(
             parent,
             false
         )
-        return SongViewHolder(binding)
+        return SongViewHolder(binding, onSongClick, onMoreOptionsClick)
     }
 
     override fun onBindViewHolder(holder: SongViewHolder, position: Int) {
         val song = getItem(position)
-        val isPlaying = song.id == currentPlayingSongId
-        holder.bind(song, isPlaying)
+        holder.bind(song, song.id == currentPlayingId)
     }
 
-    fun setCurrentPlayingSongId(songId: Int?) {
-        currentPlayingSongId = songId
-        notifyDataSetChanged()
-    }
-
-    inner class SongViewHolder(
-        private val binding: ItemSongBinding
+    class SongViewHolder(
+        private val binding: ItemSongBinding,
+        private val onSongClick: (Song) -> Unit,
+        private val onMoreOptionsClick: (Song) -> Unit
     ) : RecyclerView.ViewHolder(binding.root) {
+
+        private val colors = listOf(
+            "#F4A8C0", "#80CBC4", "#CE93D8", "#FFB74D", "#B39DDB", "#A5D6A7", "#80DEEA"
+        )
 
         fun bind(song: Song, isPlaying: Boolean) {
             binding.apply {
-                tvSongTitle.text = song.title
-                tvArtist.text = song.artist
-                tvDuration.text = formatDuration(song.duration)
+                textTitle.text = song.title
+                textArtist.text = song.artist
+                textDuration.text = formatTime(song.duration.toLong())
 
-                // ✅ CORREGIDO: Usar ContextCompat.getColor() para ambos casos
-                val color = if (isPlaying) {
-                    ContextCompat.getColor(root.context, R.color.item_active_bg)
-                } else {
-                    ContextCompat.getColor(root.context, android.R.color.transparent)
-                }
-                root.setBackgroundColor(color)
+                // Fondo resaltado si está sonando (como en la imagen)
+                root.setBackgroundColor(
+                    if (isPlaying) Color.parseColor("#1A6750A4") 
+                    else Color.TRANSPARENT
+                )
 
-                root.setOnClickListener {
-                    onSongClick(song)
-                }
+                // Color dinámico para el icono (como en la imagen)
+                val colorIndex = (song.id % colors.size).toInt()
+                val color = Color.parseColor(colors[colorIndex])
+                cardSong.setCardBackgroundColor(color.adjustAlpha(0.2f))
+                imageSong.imageTintList = ColorStateList.valueOf(color)
 
-                btnMenu.setOnClickListener {
-                    onMenuClick(song)
-                }
+                root.setOnClickListener { onSongClick(song) }
+                buttonMore.setOnClickListener { onMoreOptionsClick(song) }
             }
         }
 
-        private fun formatDuration(seconds: Int): String {
-            val minutes = seconds / 60
-            val remainingSeconds = seconds % 60
-            return String.format("%d:%02d", minutes, remainingSeconds)
+        private fun Int.adjustAlpha(factor: Float): Int {
+            val alpha = Math.round(Color.alpha(this) * factor)
+            val red = Color.red(this)
+            val green = Color.green(this)
+            val blue = Color.blue(this)
+            return Color.argb(alpha, red, green, blue)
+        }
+
+        private fun formatTime(millis: Long): String {
+            val totalSeconds = millis / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
+            return String.format(Locale.getDefault(), "%d:%02d", minutes, seconds)
         }
     }
 
     class SongDiffCallback : DiffUtil.ItemCallback<Song>() {
-        override fun areItemsTheSame(oldItem: Song, newItem: Song): Boolean {
-            return oldItem.id == newItem.id
-        }
-
-        override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean {
-            return oldItem == newItem
-        }
+        override fun areItemsTheSame(oldItem: Song, newItem: Song): Boolean = oldItem.id == newItem.id
+        override fun areContentsTheSame(oldItem: Song, newItem: Song): Boolean = oldItem == newItem
     }
 }

@@ -1,0 +1,48 @@
+package com.pinza.hush.ui.adapter
+
+import android.view.LayoutInflater
+import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
+import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import com.pinza.hush.R
+import com.pinza.hush.data.local.model.Playlist
+import com.pinza.hush.data.local.model.PlaylistWithSongs
+import com.pinza.hush.databinding.ItemPlaylistBinding
+
+class PlaylistAdapter(private val onPlaylistClick: (Playlist) -> Unit) :
+    ListAdapter<PlaylistWithSongs, PlaylistAdapter.PlaylistViewHolder>(PlaylistDiffCallback()) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PlaylistViewHolder {
+        val binding = ItemPlaylistBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return PlaylistViewHolder(binding)
+    }
+
+    override fun onBindViewHolder(holder: PlaylistViewHolder, position: Int) {
+        holder.bind(getItem(position), onPlaylistClick)
+    }
+
+    class PlaylistViewHolder(private val binding: ItemPlaylistBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(playlistWithSongs: PlaylistWithSongs, onClick: (Playlist) -> Unit) {
+            val playlist = playlistWithSongs.playlist
+            binding.tvPlaylistName.text = playlist.name
+            binding.tvSongCount.text = "${playlistWithSongs.songs.size} canciones"
+            
+            // Asignar la imagen de la primera canción de la playlist
+            val firstSongArt = playlistWithSongs.songs.firstOrNull()?.albumArt
+            binding.ivPlaylistArt.load(firstSongArt) {
+                crossfade(true)
+                placeholder(R.drawable.ic_playlist)
+                error(R.drawable.ic_playlist)
+            }
+
+            binding.root.setOnClickListener { onClick(playlist) }
+        }
+    }
+}
+
+class PlaylistDiffCallback : DiffUtil.ItemCallback<PlaylistWithSongs>() {
+    override fun areItemsTheSame(old: PlaylistWithSongs, new: PlaylistWithSongs) = old.playlist.id == new.playlist.id
+    override fun areContentsTheSame(old: PlaylistWithSongs, new: PlaylistWithSongs) = old == new
+}
