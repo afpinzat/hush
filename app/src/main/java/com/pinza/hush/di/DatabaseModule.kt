@@ -4,11 +4,10 @@ import android.content.Context
 import androidx.room.Room
 import com.pinza.hush.data.local.dao.PlayerStateDao
 import com.pinza.hush.data.local.dao.PlaylistDao
-import com.pinza.hush.data.local.dao.ScanResultDao
+import com.pinza.hush.data.local.dao.QueueDao
 import com.pinza.hush.data.local.dao.SongDao
 import com.pinza.hush.data.local.dao.SongLyricsDao
 import com.pinza.hush.data.local.database.MusicDatabase
-import com.pinza.hush.utils.NotificationHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -22,45 +21,27 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(
-        @ApplicationContext context: Context
-    ): MusicDatabase {
+    fun provideDatabase(@ApplicationContext context: Context): MusicDatabase {
         return Room.databaseBuilder(
             context,
             MusicDatabase::class.java,
-            "music_database"
-        )
-            .addMigrations(MusicDatabase.MIGRATION_1_2)
-            .fallbackToDestructiveMigration()  // ⚠️ Solo para desarrollo, borra datos
+            "hush_database"
+        ).fallbackToDestructiveMigration()
             .build()
     }
 
+    // Asegúrate de tener TODAS estas funciones aquí:
     @Provides
-    fun provideSongDao(db: MusicDatabase): SongDao =
-        db.songDao()
+    fun provideSongDao(db: MusicDatabase): SongDao = db.songDao()
 
     @Provides
-    fun providePlaylistDao(db: MusicDatabase): PlaylistDao =
-        db.playlistDao()
+    fun providePlaylistDao(db: MusicDatabase): PlaylistDao = db.playlistDao()
+
 
     @Provides
-    fun providePlayerStateDao(db: MusicDatabase): PlayerStateDao =
-        db.playerStateDao()
+    fun provideLyricsDao(db: MusicDatabase): SongLyricsDao = db.songLyricsDao()
 
+    // ¡ESTA ES LA QUE FALTA!
     @Provides
-    fun provideLyricsDao(db: MusicDatabase): SongLyricsDao =
-        db.songLyricsDao()
-
-    @Provides
-    fun provideScanDao(db: MusicDatabase): ScanResultDao =
-        db.scanResultDao()
-    @Provides
-    @Singleton
-    fun provideNotificationHelper(
-        @ApplicationContext context: Context
-    ): NotificationHelper {
-        return NotificationHelper(context)
-    }
-
-
+    fun provideQueueDao(db: MusicDatabase): QueueDao = db.queueDao()
 }

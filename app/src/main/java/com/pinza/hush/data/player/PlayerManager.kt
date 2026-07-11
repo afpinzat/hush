@@ -1,345 +1,197 @@
 package com.pinza.hush.data.player
 
-import android.content.Context
-import android.content.Intent
-import android.os.Build
+import android.net.Uri
 import androidx.media3.common.MediaItem
-import androidx.media3.common.PlaybackException
+import androidx.media3.common.MediaMetadata
 import androidx.media3.common.Player
-import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.Timeline
 import androidx.media3.exoplayer.ExoPlayer
 import com.pinza.hush.data.local.model.Song
 import com.pinza.hush.domain.player.IPlayerManager
-import com.pinza.hush.service.MusicPlayerService
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import com.pinza.hush.utils.toSong
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@UnstableApi
-@OptIn(UnstableApi::class)
 @Singleton
 class PlayerManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    private val exoPlayer: ExoPlayer
 ) : IPlayerManager {
 
-    private val TAG = "PlayerManager"
+    private val _currentSongState = MutableStateFlow<Song?>(null)
+    override val currentSongState = _currentSongState.asStateFlow()
 
-    // ─── ESTADOS OBSERVABLES ────────────────────────────────────────
+    private val _isPlayingState = MutableStateFlow(false)
+    override val isPlayingState = _isPlayingState.asStateFlow()
 
-    private val _isPlaying = MutableStateFlow(false)
-    override val isPlayingState: StateFlow<Boolean> = _isPlaying.asStateFlow()
+    private val _isBufferingState = MutableStateFlow(false)
+    override val isBufferingState = _isBufferingState.asStateFlow()
 
-    private val _currentPosition = MutableStateFlow(0L)
-    override val currentPositionState: StateFlow<Long> = _currentPosition.asStateFlow()
+    private val _repeatModeState = MutableStateFlow(Player.REPEAT_MODE_OFF)
+    override val repeatModeState = _repeatModeState.asStateFlow()
 
-    private val _duration = MutableStateFlow(0L)
-    override val durationState: StateFlow<Long> = _duration.asStateFlow()
+    private val _currentQueueState = MutableStateFlow<List<Song>>(emptyList())
+    override val currentQueueState = _currentQueueState.asStateFlow()
 
-    private val _currentSong = MutableStateFlow<Song?>(null)
-    override val currentSongState: StateFlow<Song?> = _currentSong.asStateFlow()
-
-    private val _isPrepared = MutableStateFlow(false)
-    override val isPreparedState: StateFlow<Boolean> = _isPrepared.asStateFlow()
-
-    // ─── COLA DE REPRODUCCIÓN ───────────────────────────────────────
-
-    private var queue: List<Song> = emptyList()
-    private var currentIndex: Int = -1
-    private var serviceStarted = false
-
-    // ─── REPRODUCTOR ─────────────────────────────────────────────────
-
-    private val player: ExoPlayer = ExoPlayer.Builder(context).build().apply {
-        addListener(object : Player.Listener {
-            override fun onPlaybackStateChanged(state: Int) {
-                when (state) {
-                    Player.STATE_READY -> {
-                        _isPrepared.value = true
-                        _duration.value = duration
-                        android.util.Log.d(TAG, "📊 Duración: ${formatDuration(duration)}")
-                    }
-                    Player.STATE_ENDED -> {
-                        android.util.Log.d(TAG, "⏭️ Canción terminada")
-                        _isPlaying.value = false
-                        playNext()
-                    }
-                    else -> {}
-                }
+    init {
+        exoPlayer.addListener(object : Player.Listener {
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                _currentSongState.value = mediaItem?.toSong()
             }
 
             override fun onIsPlayingChanged(isPlaying: Boolean) {
-                _isPlaying.value = isPlaying
-                android.util.Log.d(TAG, "▶️ isPlaying: $isPlaying")
+                _isPlayingState.value = isPlaying
             }
 
-            override fun onPlayerError(error: PlaybackException) {
-                android.util.Log.e(TAG, "❌ Error: ${error.message}")
+            override fun onPlaybackStateChanged(playbackState: Int) {
+                _isBufferingState.value = playbackState == Player.STATE_BUFFERING
+            }
+
+            override fun onRepeatModeChanged(repeatMode: Int) {
+                _repeatModeState.value = repeatMode
+            }
+
+            override fun onTimelineChanged(timeline: Timeline, reason: Int) {
+                updateQueueState()
             }
         })
     }
 
-    // ─── ACTUALIZACIÓN DE PROGRESO ──────────────────────────────────
-
-    private var progressJob: kotlinx.coroutines.Job? = null
-
-    private fun startProgressUpdater() {
-        progressJob?.cancel()
-        progressJob = CoroutineScope(Dispatchers.Main).launch {
-            while (true) {
-                delay(200)
-                _currentPosition.value = player.currentPosition
-                _duration.value = player.duration
-            }
+    private fun updateQueueState() {
+        val songs = mutableListOf<Song>()
+        for (i in 0 until exoPlayer.mediaItemCount) {
+            songs.add(exoPlayer.getMediaItemAt(i).toSong())
         }
+        _currentQueueState.value = songs
     }
-
-    private fun stopProgressUpdater() {
-        progressJob?.cancel()
-        progressJob = null
-    }
-
-    private fun formatDuration(ms: Long): String {
-        val seconds = ms / 1000
-        val minutes = seconds / 60
-        val remainingSeconds = seconds % 60
-        return String.format("%d:%02d", minutes, remainingSeconds)
-    }
-
-    // ─── INICIAR SERVICIO UNA SOLA VEZ ─────────────────────────────
-
-    @androidx.annotation.OptIn(UnstableApi::class)
-    private fun startServiceIfNeeded(song: Song) {
-        if (serviceStarted) return
-        try {
-            val intent = Intent(context, MusicPlayerService::class.java).apply {
-                putExtra("song_id", song.id)
-                putExtra("song_title", song.title)
-                putExtra("song_artist", song.artist)
-                putExtra("song_path", song.filePath)
-                putExtra("song_duration", song.duration)
-            }
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
-            }
-            serviceStarted = true
-            android.util.Log.d(TAG, "✅ Servicio iniciado")
-        } catch (e: Exception) {
-            android.util.Log.e(TAG, "❌ Error iniciando servicio: ${e.message}")
-        }
-    }
-
-    // ─── MÉTODOS DE REPRODUCCIÓN ────────────────────────────────────
 
     override fun play(song: Song) {
-        android.util.Log.d(TAG, "🎵 play: ${song.title}")
-        queue = listOf(song)
-        currentIndex = 0
-        playSongAtIndex(currentIndex)
-        startServiceIfNeeded(song)
-        startForegroundService(song)
+        val mediaItem = createMediaItem(song)
+        exoPlayer.setMediaItem(mediaItem)
+        exoPlayer.prepare()
+        exoPlayer.play()
+        _currentSongState.value = song
     }
 
-    override fun playSongAt(index: Int) {
-        android.util.Log.d(TAG, "📌 playSongAt: $index")
-        if (index >= 0 && index < queue.size) {
-            currentIndex = index
-            playSongAtIndex(currentIndex)
+    override fun playQueue(songs: List<Song>, startIndex: Int) {
+        val mediaItems = songs.map { createMediaItem(it) }
+        exoPlayer.setMediaItems(mediaItems, startIndex, 0L)
+        exoPlayer.prepare()
+        exoPlayer.play()
+        if (songs.isNotEmpty()) {
+            _currentSongState.value = songs[startIndex]
         }
+        updateQueueState()
     }
 
-    private fun playSongAtIndex(index: Int) {
-        if (index < 0 || index >= queue.size) {
-            android.util.Log.e(TAG, "❌ Índice inválido: $index")
-            return
+    private fun createMediaItem(song: Song): MediaItem {
+        val mediaMetadata = MediaMetadata.Builder()
+            .setTitle(song.title)
+            .setArtist(song.artist)
+            .setAlbumTitle(song.album)
+            .setArtworkUri(song.albumArt?.let { Uri.parse(it) })
+            .build()
 
-        }
-
-        currentIndex = index
-        val song = queue[index]
-        android.util.Log.d(TAG, "▶️ Reproduciendo: ${song.title} (${index + 1}/${queue.size})")
-
-        _currentSong.value = song
-        val mediaItem = MediaItem.fromUri(song.filePath)
-        player.setMediaItem(mediaItem)
-        player.prepare()
-        player.play()
-        _isPlaying.value = true
-        _isPrepared.value = false
-        startProgressUpdater()
-        startForegroundService(song)
+        return MediaItem.Builder()
+            .setMediaId(song.id.toString())
+            .setUri(Uri.fromFile(File(song.filePath)))
+            .setMediaMetadata(mediaMetadata)
+            .build()
     }
 
     override fun pause() {
-        android.util.Log.d(TAG, "⏸️ pause")
-        player.pause()
-        _isPlaying.value = false
-        stopProgressUpdater()
+        exoPlayer.pause()
     }
 
     override fun resume() {
-        android.util.Log.d(TAG, "▶️ resume")
-        if (_currentSong.value != null) {
-            player.play()
-            _isPlaying.value = true
-            startProgressUpdater()
-        }
+        exoPlayer.play()
     }
 
     override fun stop() {
-        android.util.Log.d(TAG, "⏹️ stop")
-        player.stop()
-        _isPlaying.value = false
-        _currentPosition.value = 0
-        _currentSong.value = null
-        stopProgressUpdater()
-        serviceStarted = false
-        try {
-            context.stopService(Intent(context, MusicPlayerService::class.java))
-        } catch (e: Exception) {
-            android.util.Log.e(TAG, "❌ Error deteniendo servicio: ${e.message}")
-        }
-    }
-
-    // ─── NAVEGACIÓN ──────────────────────────────────────────────────
-
-    override fun next() {
-        android.util.Log.d(TAG, "⏭️ next() llamado")
-        playNext()
-    }
-
-    override fun previous() {
-        android.util.Log.d(TAG, "⏮️ previous() llamado")
-        if (player.currentPosition > 3000) {
-            android.util.Log.d(TAG, "🔄 Reiniciando canción")
-            player.seekTo(0)
-        } else {
-            playPrevious()
-        }
-    }
-
-    private fun playNext() {
-        if (queue.isEmpty()) {
-            android.util.Log.d(TAG, "❌ Cola vacía")
-            return
-        }
-
-        if (queue.size <= 1) {
-            android.util.Log.d(TAG, "⚠️ Solo una canción, reiniciando")
-            player.seekTo(0)
-            player.play()
-            _isPlaying.value = true
-            startProgressUpdater()
-            return
-        }
-
-        val nextIndex = if (currentIndex + 1 < queue.size) currentIndex + 1 else 0
-        android.util.Log.d(TAG, "📌 Siguiente índice: $nextIndex")
-        currentIndex = nextIndex
-        playSongAtIndex(currentIndex)
-    }
-
-    private fun playPrevious() {
-        if (queue.isEmpty()) {
-            android.util.Log.d(TAG, "❌ Cola vacía")
-            return
-        }
-
-        if (queue.size <= 1) {
-            android.util.Log.d(TAG, "⚠️ Solo una canción, reiniciando")
-            player.seekTo(0)
-            player.play()
-            _isPlaying.value = true
-            startProgressUpdater()
-            return
-        }
-
-        val prevIndex = if (currentIndex - 1 >= 0) currentIndex - 1 else queue.size - 1
-        android.util.Log.d(TAG, "📌 Índice anterior: $prevIndex")
-        currentIndex = prevIndex
-        playSongAtIndex(currentIndex)
+        exoPlayer.stop()
     }
 
     override fun seekTo(position: Long) {
-        player.seekTo(position)
-        _currentPosition.value = position
+        exoPlayer.seekTo(position)
     }
 
-    override fun currentPosition(): Long = player.currentPosition
-    override fun duration(): Long = player.duration
-    override fun isPlaying(): Boolean = player.isPlaying
-    override fun hasNext(): Boolean = queue.isNotEmpty() && currentIndex + 1 < queue.size
-    override fun hasPrevious(): Boolean = queue.isNotEmpty() && currentIndex - 1 >= 0
-
-    // ─── GESTIÓN DE COLA ─────────────────────────────────────────────
-
-    override fun setQueue(songs: List<Song>, startIndex: Int) {
-        android.util.Log.d(TAG, "📋 setQueue - songs: ${songs.size}, startIndex: $startIndex")
-        if (songs.isEmpty()) {
-            android.util.Log.d(TAG, "❌ Lista vacía")
-            return
-        }
-        queue = songs
-        currentIndex = startIndex.coerceIn(0, queue.size - 1)
-        android.util.Log.d(TAG, "✅ Cola: ${queue.size} canciones, índice: $currentIndex")
-        playSongAtIndex(currentIndex)
-    }
-
-    override fun getQueue(): List<Song> = queue
-    override fun getCurrentIndex(): Int = currentIndex
-    override fun getQueueSize(): Int = queue.size
-    override fun addToQueue(song: Song) {
-        queue = queue + song
-    }
-    override fun clearQueue() {
-        queue = emptyList()
-        currentIndex = -1
-    }
-
-    override fun getStateForPersistence(): Triple<Long, List<Song>, Int> {
-        return Triple(currentPosition(), queue, currentIndex)
-    }
-
-    override fun restoreState(song: Song, position: Long, queueSongs: List<Song>, queueIndex: Int) {
-        android.util.Log.d(TAG, "♻️ Restaurando: ${song.title}")
-        this.queue = queueSongs
-        this.currentIndex = queueIndex
-        _currentSong.value = song
-        val mediaItem = MediaItem.fromUri(song.filePath)
-        player.setMediaItem(mediaItem)
-        player.prepare()
-        player.seekTo(position)
-        player.play()
-        _isPlaying.value = true
-        startProgressUpdater()
-        startServiceIfNeeded(song)
-    }
-
-    private fun startForegroundService(song: Song) {
-        try {
-            val intent = Intent(context, MusicPlayerService::class.java).apply {
-                putExtra("song_id", song.id)
-                putExtra("song_title", song.title)
-                putExtra("song_artist", song.artist)
-                putExtra("song_path", song.filePath)
-                putExtra("song_duration", song.duration)
+    override fun skipToNext() {
+        when (exoPlayer.repeatMode) {
+            Player.REPEAT_MODE_ONE -> {
+                exoPlayer.seekTo(0L)
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context.startForegroundService(intent)
-            } else {
-                context.startService(intent)
+            Player.REPEAT_MODE_OFF -> {
+                if (exoPlayer.hasNextMediaItem()) {
+                    exoPlayer.seekToNext()
+                } else {
+                    exoPlayer.seekTo(0, 0L)
+                }
             }
-            android.util.Log.d("PlayerManager", "✅ Servicio iniciado")
-        } catch (e: Exception) {
-            android.util.Log.e("PlayerManager", "❌ Error iniciando servicio: ${e.message}")
+            else -> {
+                if (exoPlayer.hasNextMediaItem()) {
+                    exoPlayer.seekToNext()
+                } else {
+                    exoPlayer.seekTo(0, 0L)
+                }
+            }
         }
     }
+
+    override fun skipToPrevious() {
+        when (exoPlayer.repeatMode) {
+            Player.REPEAT_MODE_ONE -> {
+                exoPlayer.seekTo(0L)
+            }
+            else -> {
+                if (exoPlayer.hasPreviousMediaItem()) {
+                    exoPlayer.seekToPrevious()
+                } else {
+                    exoPlayer.seekTo(exoPlayer.mediaItemCount - 1, 0L)
+                }
+            }
+        }
+    }
+
+    override fun skipToQueueItem(index: Int) {
+        if (index >= 0 && index < exoPlayer.mediaItemCount) {
+            exoPlayer.seekTo(index, 0L)
+        }
+    }
+
+    override fun toggleRepeatMode() {
+        val nextMode = when (exoPlayer.repeatMode) {
+            Player.REPEAT_MODE_OFF -> Player.REPEAT_MODE_ALL
+            Player.REPEAT_MODE_ALL -> Player.REPEAT_MODE_ONE
+            Player.REPEAT_MODE_ONE -> Player.REPEAT_MODE_OFF
+            else -> Player.REPEAT_MODE_OFF
+        }
+        exoPlayer.repeatMode = nextMode
+    }
+
+    override fun addNext(song: Song) {
+        val nextIndex = if (exoPlayer.mediaItemCount == 0) 0 else exoPlayer.currentMediaItemIndex + 1
+        exoPlayer.addMediaItem(nextIndex, createMediaItem(song))
+        updateQueueState()
+    }
+
+    override fun removeFromQueue(index: Int) {
+        if (index >= 0 && index < exoPlayer.mediaItemCount) {
+            exoPlayer.removeMediaItem(index)
+            updateQueueState()
+        }
+    }
+
+    override fun moveQueueItem(fromIndex: Int, toIndex: Int) {
+        if (fromIndex in 0 until exoPlayer.mediaItemCount && toIndex in 0 until exoPlayer.mediaItemCount) {
+            exoPlayer.moveMediaItem(fromIndex, toIndex)
+            updateQueueState()
+        }
+    }
+
+    override fun isPlaying(): Boolean = exoPlayer.isPlaying
+    override fun currentPosition(): Long = exoPlayer.currentPosition
+    override fun duration(): Long = exoPlayer.duration
 }

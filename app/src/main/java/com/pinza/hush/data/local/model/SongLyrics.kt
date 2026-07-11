@@ -7,28 +7,11 @@ import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "song_lyrics",
-    foreignKeys = [
-        ForeignKey(
-            entity = Song::class,
-            parentColumns = ["id"],
-            childColumns = ["songId"],
-            onDelete = ForeignKey.CASCADE
-        )
-    ],
-    indices = [
-        Index(value = ["songId"], unique = true)
-    ]
+    foreignKeys = [/* ... tu ForeignKey ... */]
 )
 data class SongLyrics(
-
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
-
-    val songId: Int,
-
+    @PrimaryKey val songId: Long, // Usamos songId como PrimaryKey
     val lyrics: String,
-
-    val source: String?,
-
-    val language: String?
+    val source: String? = null,
+    val language: String? = null
 )

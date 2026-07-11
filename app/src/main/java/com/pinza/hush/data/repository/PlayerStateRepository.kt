@@ -5,17 +5,18 @@ import com.pinza.hush.data.local.model.PlayerState
 import com.pinza.hush.domain.repository.IPlayerStateRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
+import javax.inject.Singleton
 
+@Singleton
 class PlayerStateRepository @Inject constructor(
-    private val dao: PlayerStateDao
+    private val playerStateDao: PlayerStateDao
 ) : IPlayerStateRepository {
 
-    override fun getPlayerState(): Flow<PlayerState?> =
-        dao.getPlayerState()
+    override suspend fun savePlayerState(state: PlayerState) {
+        playerStateDao.saveState(state)
+    }
 
-    override suspend fun save(state: PlayerState) =
-        dao.saveState(state)
-
-    override suspend fun clear() =
-        dao.clear()
+    override suspend fun getPlayerState(): PlayerState? {
+        return playerStateDao.getPlayerState()
+    }
 }

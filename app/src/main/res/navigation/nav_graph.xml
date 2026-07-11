@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/libraryFragment">
+
+    <fragment
+        android:id="@+id/songsFragment"
+        android:name="com.pinza.hush.ui.library.SongsFragment"
+        android:label="SongsFragment" />
+
+    <fragment
+        android:id="@+id/libraryFragment"
+        android:name="com.pinza.hush.ui.library.LibraryFragment"
+        android:label="LibraryFragment" />
+
+    <fragment
+        android:id="@+id/nowPlayingFragment"
+        android:name="com.pinza.hush.ui.nowplaying.NowPlayingFragment"
+        android:label="NowPlayingFragment" />
+
+    <fragment
+        android:id="@+id/libraryDetailFragment"
+        android:name="com.pinza.hush.ui.library.LibraryDetailFragment"
+        android:label="LibraryDetailFragment">
+        <argument
+            android:name="name"
+            app:argType="string" />
+        <argument
+            android:name="type"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/queueFragment"
+        android:name="com.pinza.hush.ui.queue.QueueFragment"
+        android:label="QueueFragment" />
+</navigation>

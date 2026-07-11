@@ -1,16 +1,15 @@
-// di/RepositoryModule.kt
 package com.pinza.hush.di
 
-import com.pinza.hush.data.repository.PlayerStateRepository
-import com.pinza.hush.data.repository.PlaylistRepository
-import com.pinza.hush.data.repository.ScanResultRepository
-import com.pinza.hush.data.repository.SongLyricsRepository
+import com.pinza.hush.data.player.PlayerManager
+import com.pinza.hush.data.repository.AuthRepository
+import com.pinza.hush.data.repository.QueueRepository
 import com.pinza.hush.data.repository.SongRepository
-import com.pinza.hush.domain.repository.IPlayerStateRepository
+import com.pinza.hush.domain.player.IPlayerManager
+import com.pinza.hush.domain.repository.IAuthRepository
 import com.pinza.hush.domain.repository.IPlaylistRepository
-import com.pinza.hush.domain.repository.IScanResultRepository
-import com.pinza.hush.domain.repository.ISongLyricsRepository
+import com.pinza.hush.domain.repository.IQueueRepository
 import com.pinza.hush.domain.repository.ISongRepository
+import com.pinza.hush.domain.repository.PlaylistRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -23,31 +22,31 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindSongRepository(
-        repository: SongRepository
-    ): ISongRepository
+    abstract fun bindAuthRepository(
+        authRepository: AuthRepository
+    ): IAuthRepository
 
     @Binds
     @Singleton
     abstract fun bindPlaylistRepository(
-        repository: PlaylistRepository
+        playlistRepository: PlaylistRepository
     ): IPlaylistRepository
 
     @Binds
     @Singleton
-    abstract fun bindPlayerStateRepository(
-        repository: PlayerStateRepository
-    ): IPlayerStateRepository
+    abstract fun bindSongRepository(
+        songRepository: SongRepository
+    ): ISongRepository
 
     @Binds
     @Singleton
-    abstract fun bindLyricsRepository(
-        repository: SongLyricsRepository
-    ): ISongLyricsRepository
+    abstract fun bindQueueRepository(
+        queueRepository: QueueRepository
+    ): IQueueRepository
 
     @Binds
     @Singleton
-    abstract fun bindScanRepository(
-        repository: ScanResultRepository
-    ): IScanResultRepository
+    abstract fun bindPlayerManager(
+        playerManager: PlayerManager
+    ): IPlayerManager
 }

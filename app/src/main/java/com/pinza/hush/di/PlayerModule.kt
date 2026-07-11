@@ -1,9 +1,8 @@
-// di/PlayerModule.kt
 package com.pinza.hush.di
-
 import android.content.Context
-import com.pinza.hush.data.player.PlayerManager
-import com.pinza.hush.domain.player.IPlayerManager
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.C
+import androidx.media3.exoplayer.ExoPlayer
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -17,9 +16,23 @@ object PlayerModule {
 
     @Provides
     @Singleton
-    fun providePlayerManager(
-        @ApplicationContext context: Context
-    ): IPlayerManager {
-        return PlayerManager(context)
+    fun provideAudioAttributes(): AudioAttributes {
+        return AudioAttributes.Builder()
+            .setUsage(C.USAGE_MEDIA)
+            .setContentType(C.AUDIO_CONTENT_TYPE_MUSIC)
+            .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideExoPlayer(
+        @ApplicationContext context: Context,
+        audioAttributes: AudioAttributes
+    ): ExoPlayer {
+        return ExoPlayer.Builder(context)
+            .build().apply {
+                setAudioAttributes(audioAttributes, true)
+                setHandleAudioBecomingNoisy(true) // Pausa si se desconectan los auriculares
+            }
     }
 }

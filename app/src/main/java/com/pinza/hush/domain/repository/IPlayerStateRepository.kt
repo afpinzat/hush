@@ -4,10 +4,6 @@ import com.pinza.hush.data.local.model.PlayerState
 import kotlinx.coroutines.flow.Flow
 
 interface IPlayerStateRepository {
-
-    fun getPlayerState(): Flow<PlayerState?>
-
-    suspend fun save(state: PlayerState)
-
-    suspend fun clear()
+    suspend fun savePlayerState(state: PlayerState)
+    suspend fun getPlayerState(): PlayerState?
 }

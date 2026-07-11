@@ -4,30 +4,31 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
-import androidx.sqlite.db.SupportSQLiteDatabase
 import com.pinza.hush.data.local.dao.PlayerStateDao
 import com.pinza.hush.data.local.dao.PlaylistDao
-import com.pinza.hush.data.local.dao.ScanResultDao
+import com.pinza.hush.data.local.dao.QueueDao
 import com.pinza.hush.data.local.dao.SongDao
 import com.pinza.hush.data.local.dao.SongLyricsDao
-import com.pinza.hush.data.local.model.PlayerState
-import com.pinza.hush.data.local.model.Playlist
-import com.pinza.hush.data.local.model.PlaylistSong
-import com.pinza.hush.data.local.model.ScanResult
+import com.pinza.hush.data.local.dao.UserDao
 import com.pinza.hush.data.local.model.Song
+import com.pinza.hush.data.local.model.Playlist
+import com.pinza.hush.data.local.model.PlaylistSongCrossRef
+import com.pinza.hush.data.local.model.PlayerState
 import com.pinza.hush.data.local.model.SongLyrics
+import com.pinza.hush.data.local.model.QueueItem
+import com.pinza.hush.data.local.model.User
 
 @Database(
     entities = [
         Song::class,
         Playlist::class,
-        PlaylistSong::class,
+        PlaylistSongCrossRef::class,
         PlayerState::class,
         SongLyrics::class,
-        ScanResult::class
+        QueueItem::class,
+        User::class
     ],
-    version = 2,  // ✅ Cambiar a 2
+    version = 9,
     exportSchema = false
 )
 abstract class MusicDatabase : RoomDatabase() {
@@ -36,17 +37,25 @@ abstract class MusicDatabase : RoomDatabase() {
     abstract fun playlistDao(): PlaylistDao
     abstract fun playerStateDao(): PlayerStateDao
     abstract fun songLyricsDao(): SongLyricsDao
-    abstract fun scanResultDao(): ScanResultDao
+    abstract fun queueDao(): QueueDao
+    abstract fun userDao(): UserDao
 
     companion object {
-        val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(database: SupportSQLiteDatabase) {
-                try {
-                    database.execSQL("ALTER TABLE player_state ADD COLUMN queueIds TEXT NOT NULL DEFAULT ''")
-                    database.execSQL("ALTER TABLE player_state ADD COLUMN queueIndex INTEGER NOT NULL DEFAULT -1")
-                } catch (e: Exception) {
-                    // Si las columnas ya existen, ignorar
-                }
+        @Volatile
+        private var INSTANCE: MusicDatabase? = null
+
+        fun getInstance(context: Context): MusicDatabase {
+            return INSTANCE ?: synchronized(this) {
+                val instance = Room.databaseBuilder(
+                    context.applicationContext,
+                    MusicDatabase::class.java,
+                    "hush_database"
+                )
+                    // En desarrollo, esto es lo más seguro para evitar crashes constantes:
+                    .fallbackToDestructiveMigration()
+                    .build()
+                INSTANCE = instance
+                instance
             }
         }
     }

@@ -6,11 +6,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "player_state")
 data class PlayerState(
     @PrimaryKey
-    val id: Int = 1,
-    val currentSongId: Int? = null,
-    val isPlaying: Boolean = false,
-    val currentPosition: Int = 0,
-    val playbackSpeed: Float = 1f,
-    val queueIds: String = "",
-    val queueIndex: Int = -1
+    val id: Int = 1, // Siempre será 1 para que solo exista una fila de estado
+    val currentSongId: Long? = null,
+    val currentPosition: Long = 0L, // Usamos Long para precisión en milisegundos
+    val isPlaying: Boolean = false
 )

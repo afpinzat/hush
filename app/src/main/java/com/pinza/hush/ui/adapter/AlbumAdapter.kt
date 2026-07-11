@@ -5,65 +5,38 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.pinza.hush.databinding.ItemAlbumBinding
-import android.view.View
+import coil.load
+import com.pinza.hush.R
+import com.pinza.hush.data.local.dao.SongDao
+import com.pinza.hush.databinding.ItemPlaylistBinding // Reusing ItemPlaylistBinding as it has image and text
 
-data class AlbumItem(
-    val name: String,
-    val artist: String,
-    val songCount: Int,
-    val year: Int? = null,
-    val imageUrl: String? = null
-)
-
-class AlbumAdapter(
-    private val onAlbumClick: (AlbumItem) -> Unit
-) : androidx.recyclerview.widget.ListAdapter<AlbumItem, AlbumAdapter.AlbumViewHolder>(AlbumDiffCallback()) {
+class AlbumAdapter(private val onAlbumClick: (SongDao.AlbumSummary) -> Unit) :
+    ListAdapter<SongDao.AlbumSummary, AlbumAdapter.AlbumViewHolder>(AlbumDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AlbumViewHolder {
-        val binding = ItemAlbumBinding.inflate(
-            LayoutInflater.from(parent.context),
-            parent,
-            false
-        )
+        val binding = ItemPlaylistBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return AlbumViewHolder(binding)
     }
 
     override fun onBindViewHolder(holder: AlbumViewHolder, position: Int) {
-        val album = getItem(position)
-        holder.bind(album)
+        holder.bind(getItem(position), onAlbumClick)
     }
 
-    inner class AlbumViewHolder(
-        private val binding: ItemAlbumBinding
-    ) : RecyclerView.ViewHolder(binding.root) {
-
-        fun bind(album: AlbumItem) {
-            binding.apply {
-                tvAlbumName.text = album.name
-                tvArtistName.text = album.artist
-                tvSongCount.text = "${album.songCount} canciones"
-                album.year?.let {
-                    tvYear.text = it.toString()
-                    tvYear.visibility = View.VISIBLE
-                } ?: run {
-                    tvYear.visibility = View.GONE
-                }
-
-                root.setOnClickListener {
-                    onAlbumClick(album)
-                }
+    class AlbumViewHolder(private val binding: ItemPlaylistBinding) : RecyclerView.ViewHolder(binding.root) {
+        fun bind(album: SongDao.AlbumSummary, onClick: (SongDao.AlbumSummary) -> Unit) {
+            binding.tvPlaylistName.text = album.album
+            binding.tvSongCount.text = "Álbum"
+            binding.ivPlaylistArt.load(album.albumArt) {
+                crossfade(true)
+                placeholder(R.drawable.ic_album_24)
+                error(R.drawable.ic_album_24)
             }
+            binding.root.setOnClickListener { onClick(album) }
         }
     }
+}
 
-    class AlbumDiffCallback : DiffUtil.ItemCallback<AlbumItem>() {
-        override fun areItemsTheSame(oldItem: AlbumItem, newItem: AlbumItem): Boolean {
-            return oldItem.name == newItem.name && oldItem.artist == newItem.artist
-        }
-
-        override fun areContentsTheSame(oldItem: AlbumItem, newItem: AlbumItem): Boolean {
-            return oldItem == newItem
-        }
-    }
+class AlbumDiffCallback : DiffUtil.ItemCallback<SongDao.AlbumSummary>() {
+    override fun areItemsTheSame(old: SongDao.AlbumSummary, new: SongDao.AlbumSummary) = old.album == new.album
+    override fun areContentsTheSame(old: SongDao.AlbumSummary, new: SongDao.AlbumSummary) = old == new
 }
