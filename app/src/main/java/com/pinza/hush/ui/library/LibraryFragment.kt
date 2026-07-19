@@ -138,7 +138,9 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
                     binding.progressBar.isVisible = state.isLoading
-                    // La visibilidad de emptyState ya la manejan los fragmentos internos
+                    
+                    // Mostrar estado vacío si no hay canciones y no está cargando
+                    binding.emptyStateText.isVisible = !state.isLoading && state.songs.isEmpty() && !binding.permissionStateLayout.isVisible
                 }
             }
         }

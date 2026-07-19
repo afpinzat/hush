@@ -21,9 +21,9 @@
 
         <ImageView
             android:id="@+id/imageSong"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
             android:src="@drawable/ic_music_note_24"
             app:tint="@color/primary" />
     </androidx.cardview.widget.CardView>
