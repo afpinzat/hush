@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Credenciales de prueba -->
+    <string name="test_email">test@example.com</string>
+    <string name="test_password">password123</string>
+
+    <!-- Configuración de pruebas -->
+    <bool name="use_mock_repository">true</bool>
+    <bool name="skip_animations">true</bool>
+    <bool name="enable_test_mode">true</bool>
+
+    <!-- Mensajes de prueba -->
+    <string name="test_empty_message">No hay canciones disponibles</string>
+    <string name="test_search_query">luna</string>
+
+    <!-- URLs de prueba -->
+    <string name="test_api_url">https://test-api.example.com</string>
+
+    <!-- Timeouts para pruebas -->
+    <integer name="test_timeout_ms">5000</integer>
+</resources>
