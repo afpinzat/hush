@@ -84,6 +84,13 @@
         <item name="android:background">@drawable/playing_indicator_bg</item>
     </style>
 
+    <!-- Pantalla de inicio para evitar el pantallazo negro -->
+    <style name="Theme.Hush.Splash" parent="Theme.Hush">
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
     <style name="Widget.Hush" parent="android:Widget">
         <!-- Estilo base vacío, solo para que exista -->
     </style>
