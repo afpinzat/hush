@@ -89,6 +89,7 @@ class MusicScanner @Inject constructor(
                 val filePath = cursor.getString(dataColumn)
                 val albumId = cursor.getLong(albumIdColumn)
 
+                // Forma moderna y compatible de obtener la URI de la carátula
                 val artworkUri = ContentUris.withAppendedId(
                     Uri.parse("content://media/external/audio/albumart"),
                     albumId

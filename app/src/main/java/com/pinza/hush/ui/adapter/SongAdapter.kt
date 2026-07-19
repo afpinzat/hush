@@ -7,6 +7,9 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.load
+import coil.transform.RoundedCornersTransformation
+import com.pinza.hush.R
 import com.pinza.hush.data.local.model.Song
 import com.pinza.hush.databinding.ItemSongBinding
 import java.util.Locale
@@ -53,17 +56,32 @@ class SongAdapter(
                 textArtist.text = song.artist
                 textDuration.text = formatTime(song.duration.toLong())
 
-                // Fondo resaltado si está sonando (como en la imagen)
+                // Cargar portada con Coil
+                imageSong.load(song.albumArt) {
+                    crossfade(true)
+                    placeholder(R.drawable.ic_music_note_24)
+                    error(R.drawable.ic_music_note_24)
+                    transformations(RoundedCornersTransformation(12f))
+                }
+                
+                // Si hay portada, quitamos el tinte para que se vea bien
+                imageSong.imageTintList = if (song.albumArt.isNullOrBlank()) {
+                    val colorIndex = (song.id % colors.size).toInt()
+                    ColorStateList.valueOf(Color.parseColor(colors[colorIndex]))
+                } else {
+                    null
+                }
+
+                // Fondo resaltado si está sonando
                 root.setBackgroundColor(
                     if (isPlaying) Color.parseColor("#1A6750A4") 
                     else Color.TRANSPARENT
                 )
 
-                // Color dinámico para el icono (como en la imagen)
+                // Color dinámico para el contenedor solo si no hay imagen (opcional)
                 val colorIndex = (song.id % colors.size).toInt()
                 val color = Color.parseColor(colors[colorIndex])
                 cardSong.setCardBackgroundColor(color.adjustAlpha(0.2f))
-                imageSong.imageTintList = ColorStateList.valueOf(color)
 
                 root.setOnClickListener { onSongClick(song) }
                 buttonMore.setOnClickListener { onMoreOptionsClick(song) }
