@@ -3,6 +3,7 @@ package com.pinza.hush.ui.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
+import com.pinza.hush.datasource.local.UserPreferencesDataSource
 import com.pinza.hush.domain.repository.IAuthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,8 @@ data class AuthUiState(
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val authRepository: IAuthRepository
+    private val authRepository: IAuthRepository,
+    private val userPreferencesDataSource: UserPreferencesDataSource
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AuthUiState())
@@ -32,8 +34,15 @@ class AuthViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
             authRepository.login(email, password).collect { result ->
                 result.fold(
-                    onSuccess = { user ->
-                        _uiState.update { it.copy(isLoading = false, user = user, isSuccess = true) }
+                    onSuccess = { firebaseUser ->
+                        // ✅ GUARDAR LA SESIÓN EN DATASTORE
+                        userPreferencesDataSource.saveUser(
+                            id = firebaseUser.uid,
+                            name = firebaseUser.displayName ?: "",
+                            email = firebaseUser.email ?: "",
+                            token = firebaseUser.uid // Usamos el UID como token de sesión
+                        )
+                        _uiState.update { it.copy(isLoading = false, user = firebaseUser, isSuccess = true) }
                     },
                     onFailure = { error ->
                         _uiState.update { it.copy(isLoading = false, error = error.message) }
@@ -48,8 +57,15 @@ class AuthViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
             authRepository.register(email, password).collect { result ->
                 result.fold(
-                    onSuccess = { user ->
-                        _uiState.update { it.copy(isLoading = false, user = user, isSuccess = true) }
+                    onSuccess = { firebaseUser ->
+                        // ✅ GUARDAR LA SESIÓN EN DATASTORE
+                        userPreferencesDataSource.saveUser(
+                            id = firebaseUser.uid,
+                            name = firebaseUser.displayName ?: "",
+                            email = firebaseUser.email ?: "",
+                            token = firebaseUser.uid
+                        )
+                        _uiState.update { it.copy(isLoading = false, user = firebaseUser, isSuccess = true) }
                     },
                     onFailure = { error ->
                         _uiState.update { it.copy(isLoading = false, error = error.message) }

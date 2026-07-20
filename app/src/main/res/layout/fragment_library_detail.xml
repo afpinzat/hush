@@ -39,6 +39,13 @@
         android:clipToPadding="false"
         android:paddingBottom="80dp" />
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/btn_add_songs_to_playlist"
         android:layout_width="wrap_content"

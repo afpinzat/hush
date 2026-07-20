@@ -28,7 +28,7 @@ import com.pinza.hush.data.local.model.User
         QueueItem::class,
         User::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 abstract class MusicDatabase : RoomDatabase() {

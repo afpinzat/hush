@@ -27,7 +27,7 @@ class SelectSongsDialog : DialogFragment() {
         val builder = AlertDialog.Builder(requireContext())
         builder.setTitle("Seleccionar Canciones")
 
-        val allSongs = libraryViewModel.uiState.value.songs
+        val allSongs = libraryViewModel.songs.value
         val songTitles = allSongs.map { "${it.title} - ${it.artist}" }.toTypedArray()
         val checkedItems = BooleanArray(allSongs.size) { false }
 

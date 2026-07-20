@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.size.Precision
 import com.pinza.hush.R
 import com.pinza.hush.data.local.model.Playlist
 import com.pinza.hush.data.local.model.PlaylistWithSongs
@@ -32,9 +33,11 @@ class PlaylistAdapter(private val onPlaylistClick: (Playlist) -> Unit) :
             // Asignar la imagen de la primera canción de la playlist
             val firstSongArt = playlistWithSongs.songs.firstOrNull()?.albumArt
             binding.ivPlaylistArt.load(firstSongArt) {
-                crossfade(true)
                 placeholder(R.drawable.ic_playlist)
                 error(R.drawable.ic_playlist)
+                size(300, 300)
+                precision(Precision.INEXACT)
+                crossfade(false)
             }
 
             binding.root.setOnClickListener { onClick(playlist) }

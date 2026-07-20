@@ -1,7 +1,10 @@
 package com.pinza.hush.ui.nowplaying
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import androidx.core.graphics.ColorUtils
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
@@ -76,14 +79,39 @@ class MiniplayerFragment : Fragment(R.layout.fragment_mini_player) {
                         crossfade(true)
                         placeholder(R.drawable.ic_music_note_24)
                         error(R.drawable.ic_music_note_24)
+                        size(150, 150) // Miniatura muy pequeña para el mini reproductor
+                        bitmapConfig(android.graphics.Bitmap.Config.RGB_565) // Ahorro de RAM
+                        allowHardware(true)
                     }
 
                     val iconRes = if (state.isPlaying) R.drawable.ic_pause_24 else R.drawable.ic_play_arrow_24
                     binding.btnPlayMini.setImageResource(iconRes)
 
-                    // Actualizar barra de progreso
+                    // Actualizar barra de progreso con colores que contrasten
                     binding.pbMiniProgress.max = state.duration.toInt()
                     binding.pbMiniProgress.progress = state.progress.toInt()
+                    
+                    // Asegurar que la barra sea blanca sobre el fondo morado
+                    binding.pbMiniProgress.progressTintList = ColorStateList.valueOf(Color.WHITE)
+                    binding.pbMiniProgress.progressBackgroundTintList = ColorStateList.valueOf(ColorUtils.setAlphaComponent(Color.WHITE, 60))
+
+                    // Miniplayer en un morado más suave (Pastel/M3 Lavender)
+                    val softPurple = Color.parseColor("#EADDFF") // Color Lavender claro de Material 3
+                    binding.miniPlayerContainer.setBackgroundColor(softPurple)
+                    
+                    // Ajustar colores de texto e iconos para contraste sobre morado CLARO (Negro)
+                    val blackState = ColorStateList.valueOf(Color.BLACK)
+                    binding.tvMiniTitle.setTextColor(Color.BLACK)
+                    binding.tvMiniArtist.setTextColor(ColorUtils.setAlphaComponent(Color.BLACK, 160))
+                    
+                    binding.btnPlayMini.imageTintList = blackState
+                    binding.btnNextMini.imageTintList = blackState
+                    binding.btnPreviousMini.imageTintList = blackState
+                    binding.btnQueueMini.imageTintList = blackState
+                    
+                    // La barra de progreso sobre morado claro queda mejor en un morado oscuro o negro
+                    binding.pbMiniProgress.progressTintList = ColorStateList.valueOf(Color.parseColor("#6750A4"))
+                    binding.pbMiniProgress.progressBackgroundTintList = ColorStateList.valueOf(ColorUtils.setAlphaComponent(Color.BLACK, 20))
                 }
             }
         }

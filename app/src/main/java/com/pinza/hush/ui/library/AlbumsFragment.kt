@@ -48,8 +48,8 @@ class AlbumsFragment : Fragment(R.layout.fragment_albums) {
     private fun observeAlbums() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    albumAdapter.submitList(state.albums)
+                viewModel.albums.collect { albums ->
+                    albumAdapter.submitList(albums)
                 }
             }
         }

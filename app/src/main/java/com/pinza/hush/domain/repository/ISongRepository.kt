@@ -2,6 +2,7 @@ package com.pinza.hush.domain.repository
 
 import com.pinza.hush.data.local.dao.SongDao
 import com.pinza.hush.data.local.model.Song
+import com.pinza.hush.data.local.model.SongLyrics
 import kotlinx.coroutines.flow.Flow
 
 interface ISongRepository {
@@ -32,10 +33,13 @@ interface ISongRepository {
     suspend fun toggleFavorite(songId: Long, isFavorite: Boolean) // Agrega esto
 
     suspend fun getLyrics(songId: Long): String?
+    suspend fun getSongLyrics(songId: Long): SongLyrics?
+    fun getSongLyricsFlow(songId: Long): Flow<SongLyrics?>
 
     suspend fun checkAndExtractLyrics(song: Song)
 
     fun getLyricsFlow(songId: Long): Flow<String?>
 
     suspend fun saveLyrics(songId: Long, lyrics: String)
+    suspend fun saveSongLyrics(lyrics: SongLyrics)
 }

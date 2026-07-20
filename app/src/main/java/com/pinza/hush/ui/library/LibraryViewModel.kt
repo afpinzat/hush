@@ -4,121 +4,98 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.pinza.hush.data.local.dao.SongDao
 import com.pinza.hush.data.local.model.Song
+import com.pinza.hush.data.local.model.SongLyrics
 import com.pinza.hush.domain.player.IPlayerManager
-import com.pinza.hush.domain.repository.IPlaylistRepository
 import com.pinza.hush.domain.repository.ISongRepository
-import com.pinza.hush.domain.usecase.library.GetAlbumsUseCase
-import com.pinza.hush.domain.usecase.library.GetArtistsUseCase
-import com.pinza.hush.domain.usecase.library.GetLibrarySongsUseCase
-import com.pinza.hush.domain.usecase.library.GetSongsByAlbumUseCase
-import com.pinza.hush.domain.usecase.library.GetSongsByArtistUseCase
-import com.pinza.hush.domain.usecase.library.ScanMusicUseCase
+import com.pinza.hush.domain.usecase.library.*
 import com.pinza.hush.domain.usecase.player.PlayQueueUseCase
 import com.pinza.hush.domain.usecase.player.PlaySongUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class LibraryUiState(
-    val isLoading: Boolean = false,
-    val songs: List<Song> = emptyList(),
-    val favoriteSongs: List<Song> = emptyList(),
-    val albums: List<SongDao.AlbumSummary> = emptyList(),
-    val artists: List<SongDao.ArtistSummary> = emptyList(),
-    val detailSongs: List<Song> = emptyList(),
-    val error: String? = null
-)
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
 class LibraryViewModel @Inject constructor(
     private val getLibrarySongsUseCase: GetLibrarySongsUseCase,
-    private val getFavoriteSongsUseCase: com.pinza.hush.domain.usecase.library.GetFavoriteSongsUseCase,
+    private val getFavoriteSongsUseCase: GetFavoriteSongsUseCase,
     private val getAlbumsUseCase: GetAlbumsUseCase,
     private val getArtistsUseCase: GetArtistsUseCase,
-    private val getSongsByAlbumUseCase: GetSongsByAlbumUseCase,
-    private val getSongsByArtistUseCase: GetSongsByArtistUseCase,
     private val scanMusicUseCase: ScanMusicUseCase,
     private val playSongUseCase: PlaySongUseCase,
     private val playQueueUseCase: PlayQueueUseCase,
     private val playerManager: IPlayerManager,
-    private val playlistRepository: IPlaylistRepository,
     private val songRepository: ISongRepository
 ) : ViewModel() {
-
-    private val _uiState = MutableStateFlow(LibraryUiState(isLoading = false))
-    val uiState: StateFlow<LibraryUiState> = _uiState.asStateFlow()
 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
+    // Optimización: antes este flow era "frío", así que cada uno de los 4 combine()
+    // de abajo ejecutaba su PROPIO debounce(300) + distinctUntilChanged() por separado
+    // (4 timers de debounce corriendo en paralelo sobre la misma búsqueda).
+    // Con stateIn() se calcula UNA sola vez y se comparte entre los 4 consumidores.
+    private val debouncedSearch: StateFlow<String> = _searchQuery
+        .debounce(300)
+        .distinctUntilChanged()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "")
+
+    // 1. Lista de canciones (Solo activa si se observa)
+    val songs: StateFlow<List<Song>> = getLibrarySongsUseCase()
+        .combine(debouncedSearch) { list, query ->
+            if (query.isBlank()) list
+            else list.filter { it.title.contains(query, ignoreCase = true) || it.artist.contains(query, ignoreCase = true) }
+        }
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // 2. Favoritos
+    val favoriteSongs: StateFlow<List<Song>> = getFavoriteSongsUseCase()
+        .combine(debouncedSearch) { list, query ->
+            if (query.isBlank()) list
+            else list.filter { it.title.contains(query, ignoreCase = true) || it.artist.contains(query, ignoreCase = true) }
+        }
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // 3. Álbumes
+    val albums: StateFlow<List<SongDao.AlbumSummary>> = getAlbumsUseCase()
+        .combine(debouncedSearch) { list, query ->
+            if (query.isBlank()) list
+            else list.filter { it.album.contains(query, ignoreCase = true) }
+        }
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // 4. Artistas
+    val artists: StateFlow<List<SongDao.ArtistSummary>> = getArtistsUseCase()
+        .combine(debouncedSearch) { list, query ->
+            if (query.isBlank()) list
+            else list.filter { it.artist.contains(query, ignoreCase = true) }
+        }
+        .flowOn(Dispatchers.Default)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
     val currentSongState = playerManager.currentSongState
 
-    private var isScanning = false
-
-    init {
-        loadLibraryData()
+    fun onSearchQueryChanged(newQuery: String) {
+        _searchQuery.value = newQuery
     }
 
-    private fun loadLibraryData() {
+    fun scanMusic() {
         viewModelScope.launch {
-            // Combinamos las fuentes de datos con la query de búsqueda
-            combine(
-                getLibrarySongsUseCase(),
-                getFavoriteSongsUseCase(),
-                getAlbumsUseCase(),
-                getArtistsUseCase(),
-                _searchQuery.debounce(200).distinctUntilChanged()
-            ) { songs, favorites, albums, artists, query ->
-                val filteredSongs = if (query.isBlank()) songs else {
-                    songs.filter { it.title.contains(query, ignoreCase = true) || it.artist.contains(query, ignoreCase = true) }
-                }
-                val filteredFavorites = if (query.isBlank()) favorites else {
-                    favorites.filter { it.title.contains(query, ignoreCase = true) || it.artist.contains(query, ignoreCase = true) }
-                }
-                val filteredAlbums = if (query.isBlank()) albums else {
-                    albums.filter { it.album.contains(query, ignoreCase = true) }
-                }
-                val filteredArtists = if (query.isBlank()) artists else {
-                    artists.filter { it.artist.contains(query, ignoreCase = true) }
-                }
-
-                // Devolvemos el estado parcial para actualizarlo en el collect
-                FilteredResults(filteredSongs, filteredFavorites, filteredAlbums, filteredArtists)
-            }.catch { e ->
-                _uiState.update { it.copy(isLoading = false, error = e.message) }
-            }.collect { results ->
-                _uiState.update { it.copy(
-                    songs = results.songs,
-                    favoriteSongs = results.favorites,
-                    albums = results.albums,
-                    artists = results.artists,
-                    isLoading = false
-                ) }
+            _isLoading.value = true
+            try {
+                scanMusicUseCase()
+            } finally {
+                _isLoading.value = false
             }
-        }
-    }
-
-    private data class FilteredResults(
-        val songs: List<Song>,
-        val favorites: List<Song>,
-        val albums: List<SongDao.AlbumSummary>,
-        val artists: List<SongDao.ArtistSummary>
-    )
-
-    fun play(song: Song) {
-        viewModelScope.launch {
-            playSongUseCase(song)
         }
     }
 
@@ -130,66 +107,6 @@ class LibraryViewModel @Inject constructor(
 
     fun addToQueueNext(song: Song) {
         playerManager.addNext(song)
-    }
-
-    fun scanMusic() {
-        if (isScanning) return
-        
-        viewModelScope.launch {
-            isScanning = true
-            // Solo mostramos carga si la lista está vacía. 
-            // Si ya hay canciones, el escaneo es en "segundo plano" (sin bloquear UI).
-            if (_uiState.value.songs.isEmpty()) {
-                _uiState.update { it.copy(isLoading = true) }
-            }
-            
-            try {
-                scanMusicUseCase()
-            } finally {
-                isScanning = false
-                _uiState.update { it.copy(isLoading = false) }
-            }
-        }
-    }
-
-    fun onSearchQueryChanged(newQuery: String) {
-        _searchQuery.value = newQuery
-    }
-
-    fun createPlaylist(name: String) {
-        viewModelScope.launch {
-            playlistRepository.createPlaylist(name)
-        }
-    }
-
-    fun loadDetail(name: String, type: String) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            val flow = if (type == "album") {
-                getSongsByAlbumUseCase(name)
-            } else {
-                getSongsByArtistUseCase(name)
-            }
-            
-            flow.catch { e ->
-                _uiState.update { it.copy(isLoading = false, error = e.message) }
-            }.collect { songs ->
-                _uiState.update { it.copy(isLoading = false, detailSongs = songs) }
-            }
-        }
-    }
-
-    fun loadPlaylistSongs(playlistId: Long) {
-        viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
-            playlistRepository.getPlaylistWithSongs(playlistId)
-                .catch { e ->
-                    _uiState.update { it.copy(isLoading = false, error = e.message) }
-                }
-                .collect { result ->
-                    _uiState.update { it.copy(isLoading = false, detailSongs = result.songs) }
-                }
-        }
     }
 
     fun updateSong(song: Song) {
@@ -204,13 +121,19 @@ class LibraryViewModel @Inject constructor(
         }
     }
 
-    suspend fun getLyrics(songId: Long): String? {
-        return songRepository.getLyrics(songId)
-    }
+    suspend fun getLyrics(songId: Long): String? = songRepository.getLyrics(songId)
+
+    suspend fun getSongLyrics(songId: Long): SongLyrics? = songRepository.getSongLyrics(songId)
 
     fun saveLyrics(songId: Long, lyrics: String) {
         viewModelScope.launch {
             songRepository.saveLyrics(songId, lyrics)
+        }
+    }
+
+    fun saveSongLyrics(lyrics: SongLyrics) {
+        viewModelScope.launch {
+            songRepository.saveSongLyrics(lyrics)
         }
     }
 }

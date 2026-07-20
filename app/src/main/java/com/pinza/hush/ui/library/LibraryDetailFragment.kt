@@ -12,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pinza.hush.R
 import com.pinza.hush.databinding.FragmentLibraryDetailBinding
+import androidx.fragment.app.viewModels
 import com.pinza.hush.ui.adapter.SongAdapter
 import com.pinza.hush.ui.playlist.SelectSongsDialog
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 class LibraryDetailFragment : Fragment(R.layout.fragment_library_detail) {
 
     private val viewModel: LibraryViewModel by activityViewModels()
+    private val detailViewModel: LibraryDetailViewModel by viewModels()
     
     private var _binding: FragmentLibraryDetailBinding? = null
     private val binding get() = _binding!!
@@ -41,9 +43,9 @@ class LibraryDetailFragment : Fragment(R.layout.fragment_library_detail) {
 
         // Cargar los datos específicos
         if (type == "playlist") {
-            viewModel.loadPlaylistSongs(playlistId)
+            detailViewModel.loadPlaylistSongs(playlistId)
         } else {
-            viewModel.loadDetail(name, type)
+            detailViewModel.loadDetail(name, type)
         }
     }
 
@@ -82,8 +84,9 @@ class LibraryDetailFragment : Fragment(R.layout.fragment_library_detail) {
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    songAdapter.submitList(state.detailSongs)
+                detailViewModel.uiState.collect { state ->
+                    songAdapter.submitList(state.songs)
+                    binding.progressBar.isVisible = state.isLoading
                 }
             }
         }

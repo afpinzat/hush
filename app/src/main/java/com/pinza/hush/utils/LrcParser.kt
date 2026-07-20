@@ -4,7 +4,8 @@ import java.util.regex.Pattern
 
 data class LrcLine(
     val time: Long,
-    val text: String
+    val text: String,
+    val translation: String? = null
 )
 
 object LrcParser {
@@ -14,7 +15,7 @@ object LrcParser {
         if (lrcContent.isBlank()) return emptyList()
         
         val lines = lrcContent.lines()
-        val result = mutableListOf<LrcLine>()
+        val result = mutableMapOf<Long, LrcLine>()
         var hasTimedLines = false
 
         for (line in lines) {
@@ -27,19 +28,26 @@ object LrcParser {
                 val text = matcher.group(4)?.trim() ?: ""
 
                 val time = (min * 60 * 1000) + (sec * 1000) + ms
-                result.add(LrcLine(time, text))
+                
+                // If the time already exists, it's likely a translation line in Spotify-style dual LRC
+                if (result.containsKey(time)) {
+                    val existing = result[time]!!
+                    result[time] = existing.copy(translation = text)
+                } else {
+                    result[time] = LrcLine(time, text)
+                }
                 hasTimedLines = true
             }
         }
 
         // Si no se encontraron etiquetas de tiempo, tratar como texto plano
         if (!hasTimedLines && lrcContent.isNotBlank()) {
-            lrcContent.lines().filter { it.isNotBlank() }.forEachIndexed { index, text ->
-                // Asignamos tiempos ficticios o simplemente 0 para que aparezcan
-                result.add(LrcLine(index * 1000L, text.trim()))
+            val plainLines = lrcContent.lines().filter { it.isNotBlank() }
+            return plainLines.mapIndexed { index, text ->
+                LrcLine(index * 1000L, text.trim())
             }
         }
 
-        return result.sortedBy { it.time }
+        return result.values.sortedBy { it.time }
     }
 }
