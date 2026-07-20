@@ -48,8 +48,8 @@ class ArtistsFragment : Fragment(R.layout.fragment_artists) {
     private fun observeArtists() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    artistAdapter.submitList(state.artists)
+                viewModel.artists.collect { artists ->
+                    artistAdapter.submitList(artists)
                 }
             }
         }

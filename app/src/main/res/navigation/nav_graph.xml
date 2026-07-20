@@ -35,4 +35,6 @@
         android:id="@+id/queueFragment"
         android:name="com.pinza.hush.ui.queue.QueueFragment"
         android:label="QueueFragment" />
+
+
 </navigation>

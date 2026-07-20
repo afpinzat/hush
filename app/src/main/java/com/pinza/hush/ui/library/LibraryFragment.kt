@@ -61,6 +61,9 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         }
 
         binding.etSearch.addTextChangedListener { text ->
+            // El debounce ya se hace en LibraryViewModel (compartido entre songs/
+            // favoriteSongs/albums/artists), así que aquí solo se propaga el valor
+            // tal cual, sin duplicar el delay.
             viewModel.onSearchQueryChanged(text?.toString() ?: "")
         }
 
@@ -73,7 +76,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         isSearchVisible = !isSearchVisible
         binding.etSearch.isVisible = isSearchVisible
         binding.tvTitle.isVisible = !isSearchVisible
-        
+
         val imm = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         if (isSearchVisible) {
             binding.etSearch.requestFocus()
@@ -95,6 +98,18 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         val permissionsToRequest = mutableListOf(storagePermission)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
+        }
+
+        // Optimización: si ya tenemos todos los permisos, evitamos el overhead de
+        // invocar el launcher del sistema (IPC) en cada creación de la vista
+        val allGranted = permissionsToRequest.all {
+            ContextCompat.checkSelfPermission(requireContext(), it) == PackageManager.PERMISSION_GRANTED
+        }
+
+        if (allGranted) {
+            binding.permissionStateLayout.isVisible = false
+            viewModel.scanMusic()
+            return
         }
 
         requestMultiplePermissionsLauncher.launch(permissionsToRequest.toTypedArray())
@@ -120,6 +135,7 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
     private fun setupViewPager() {
         val adapter = LibraryViewPagerAdapter(this)
         binding.viewPager.adapter = adapter
+        binding.viewPager.offscreenPageLimit = 1 // Prevent all fragments from running at once
 
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = when (position) {
@@ -136,11 +152,17 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
     private fun observeUiState() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    binding.progressBar.isVisible = state.isLoading
-                    
-                    // Mostrar estado vacío si no hay canciones y no está cargando
-                    binding.emptyStateText.isVisible = !state.isLoading && state.songs.isEmpty() && !binding.permissionStateLayout.isVisible
+                // Solo observamos el estado de carga y si hay canciones para el empty state
+                launch {
+                    viewModel.isLoading.collect { loading ->
+                        binding.progressBar.isVisible = loading
+                    }
+                }
+
+                launch {
+                    viewModel.songs.collect { songs ->
+                        binding.emptyStateText.isVisible = songs.isEmpty() && !binding.progressBar.isVisible && !binding.permissionStateLayout.isVisible
+                    }
                 }
             }
         }

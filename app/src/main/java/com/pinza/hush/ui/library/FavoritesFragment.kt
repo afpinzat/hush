@@ -48,8 +48,8 @@ class FavoritesFragment : Fragment(R.layout.fragment_songs) {
     private fun observeFavorites() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    songAdapter.submitList(state.favoriteSongs)
+                viewModel.favoriteSongs.collect { favorites ->
+                    songAdapter.submitList(favorites)
                 }
             }
         }

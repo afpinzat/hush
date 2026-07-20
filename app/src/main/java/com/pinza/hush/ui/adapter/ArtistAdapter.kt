@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.size.Precision
 import com.pinza.hush.R
 import com.pinza.hush.data.local.dao.SongDao
 import com.pinza.hush.databinding.ItemPlaylistBinding
@@ -27,9 +28,11 @@ class ArtistAdapter(private val onArtistClick: (SongDao.ArtistSummary) -> Unit) 
             binding.tvPlaylistName.text = artist.artist
             binding.tvSongCount.text = "Artista"
             binding.ivPlaylistArt.load(artist.albumArt) {
-                crossfade(true)
                 placeholder(R.drawable.ic_album_24)
                 error(R.drawable.ic_album_24)
+                size(300, 300) // Lower resolution for grid
+                precision(Precision.INEXACT)
+                crossfade(false)
             }
             binding.root.setOnClickListener { onClick(artist) }
         }

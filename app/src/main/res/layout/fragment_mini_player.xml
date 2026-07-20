@@ -3,9 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mini_player_container"
     android:layout_width="match_parent"
     android:layout_height="68dp"
-    android:background="@color/primary_container"
+    android:background="@android:color/white"
     android:elevation="12dp"
     android:paddingHorizontal="8dp">
 
@@ -58,7 +59,7 @@
             android:textStyle="bold"
             android:maxLines="1"
             android:ellipsize="end"
-            android:textColor="@color/on_primary_container"
+            android:textColor="@android:color/black"
             tools:text="Song Title" />
 
         <TextView
@@ -68,7 +69,7 @@
             android:maxLines="1"
             android:ellipsize="end"
             android:textSize="12sp"
-            android:textColor="@color/on_primary_container"
+            android:textColor="@android:color/black"
             android:alpha="0.8"
             tools:text="Artist Name" />
     </LinearLayout>
@@ -80,7 +81,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_skip_previous_24"
         android:contentDescription="Anterior"
-        app:tint="@color/on_primary_container"
+        app:tint="@android:color/black"
         app:layout_constraintEnd_toStartOf="@id/btn_play_mini"
         app:layout_constraintTop_toBottomOf="@id/pb_mini_progress"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -92,7 +93,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_play_arrow_24"
         android:contentDescription="@string/play_pause"
-        app:tint="@color/on_primary_container"
+        app:tint="@android:color/black"
         app:layout_constraintEnd_toStartOf="@id/btn_next_mini"
         app:layout_constraintTop_toBottomOf="@id/pb_mini_progress"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -104,7 +105,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_skip_next_24"
         android:contentDescription="Siguiente"
-        app:tint="@color/on_primary_container"
+        app:tint="@android:color/black"
         app:layout_constraintEnd_toStartOf="@id/btn_queue_mini"
         app:layout_constraintTop_toBottomOf="@id/pb_mini_progress"
         app:layout_constraintBottom_toBottomOf="parent" />
@@ -116,7 +117,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:src="@drawable/ic_queue_music_24"
         android:contentDescription="Cola"
-        app:tint="@color/on_primary_container"
+        app:tint="@android:color/black"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/pb_mini_progress"
         app:layout_constraintBottom_toBottomOf="parent" />

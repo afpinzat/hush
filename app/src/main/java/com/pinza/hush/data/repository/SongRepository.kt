@@ -66,8 +66,16 @@ class SongRepository @Inject constructor(
         return lyricsDao.getLyricsSingle(songId)?.lyrics
     }
 
+    override suspend fun getSongLyrics(songId: Long): SongLyrics? {
+        return lyricsDao.getLyricsSingle(songId)
+    }
+
     override fun getLyricsFlow(songId: Long): Flow<String?> {
         return lyricsDao.getLyricsFlow(songId).map { it?.lyrics }
+    }
+
+    override fun getSongLyricsFlow(songId: Long): Flow<SongLyrics?> {
+        return lyricsDao.getLyricsFlow(songId)
     }
 
     override suspend fun checkAndExtractLyrics(song: Song) {
@@ -94,6 +102,10 @@ class SongRepository @Inject constructor(
             language = null
         )
         lyricsDao.insert(entry)
+    }
+
+    override suspend fun saveSongLyrics(lyrics: SongLyrics) {
+        lyricsDao.insert(lyrics)
     }
 
 }

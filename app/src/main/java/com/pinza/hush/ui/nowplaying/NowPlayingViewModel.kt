@@ -20,22 +20,34 @@ import javax.inject.Inject
 import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 
+import kotlinx.coroutines.flow.combine
+import coil.imageLoader
+import coil.request.ImageRequest
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 data class NowPlayingUiState(
     val currentSong: Song? = null,
+    val nextSong: Song? = null,
+    val previousSong: Song? = null,
     val isPlaying: Boolean = false,
     val progress: Long = 0L,
     val duration: Long = 0L,
     val isBuffering: Boolean = false,
     val lyrics: String = "",
+    val lyrics2: String = "",
+    val isPrimarySecond: Boolean = false,
     val parsedLyrics: List<LrcLine> = emptyList(),
     val currentLineIndex: Int = -1,
-    val repeatMode: Int = Player.REPEAT_MODE_OFF
+    val repeatMode: Int = Player.REPEAT_MODE_OFF,
+    val showTranslation: Boolean = false
 )
 
 @HiltViewModel
 class NowPlayingViewModel @Inject constructor(
     private val playerManager: IPlayerManager,
-    private val songRepository: ISongRepository
+    private val songRepository: ISongRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private var mediaController: MediaController? = null
@@ -56,11 +68,34 @@ class NowPlayingViewModel @Inject constructor(
 
     private fun observePlaybackChanges() {
         viewModelScope.launch {
-            // Observar cambios de canción y su estado de favorito
+            // Observar cambios de canción y precargar adyacentes
             launch {
-                playerManager.currentSongState.collect { song ->
-                    _uiState.update { it.copy(currentSong = song) }
-                    song?.let { 
+                combine(
+                    playerManager.currentSongState,
+                    playerManager.currentQueueState
+                ) { currentSong, queue ->
+                    Triple(currentSong, queue, findAdjacents(currentSong, queue))
+                }.collect { (currentSong, queue, adjacents) ->
+                    val (prev, next) = adjacents
+                    
+                    _uiState.update { 
+                        if (it.currentSong?.id != currentSong?.id || 
+                            it.currentSong?.isFavorite != currentSong?.isFavorite ||
+                            it.nextSong?.id != next?.id ||
+                            it.previousSong?.id != prev?.id) {
+                            it.copy(
+                                currentSong = currentSong,
+                                nextSong = next,
+                                previousSong = prev
+                            )
+                        } else it
+                    }
+
+                    // Precarga agresiva de carátulas adyacentes
+                    next?.albumArt?.let { preloadImage(it) }
+                    prev?.albumArt?.let { preloadImage(it) }
+
+                    currentSong?.let { 
                         observeLyrics(it.id)
                         observeCurrentSongStatus(it.id)
                         viewModelScope.launch {
@@ -91,30 +126,67 @@ class NowPlayingViewModel @Inject constructor(
                 }
             }
 
-            // Actualizar progreso periódicamente
-            while (true) {
-                if (playerManager.isPlaying()) {
-                    val currentPos = playerManager.currentPosition()
-                    _uiState.update {
-                        it.copy(
-                            progress = currentPos,
-                            duration = playerManager.duration().coerceAtLeast(0L),
-                            currentLineIndex = findCurrentLineIndex(currentPos, it.parsedLyrics)
-                        )
+            // Actualización de progreso optimizada: Solo emite cuando la música está sonando
+            launch {
+                playerManager.isPlayingState.collect { isPlaying ->
+                    if (isPlaying) {
+                        while (playerManager.isPlaying()) {
+                            val currentPos = playerManager.currentPosition()
+                            val duration = playerManager.duration().coerceAtLeast(0L)
+                            val lineIndex = findCurrentLineIndex(currentPos, _uiState.value.parsedLyrics)
+                            
+                            _uiState.update {
+                                if (it.progress != currentPos || it.duration != duration || it.currentLineIndex != lineIndex) {
+                                    it.copy(
+                                        progress = currentPos,
+                                        duration = duration,
+                                        currentLineIndex = lineIndex
+                                    )
+                                } else it
+                            }
+                            delay(250) // Intervalo balanceado para letras y UI
+                        }
                     }
                 }
-                delay(200) // Más rápido para las letras
             }
         }
+    }
+
+    private fun findAdjacents(current: Song?, queue: List<Song>): Pair<Song?, Song?> {
+        if (current == null || queue.isEmpty()) return null to null
+        val index = queue.indexOfFirst { it.id == current.id }
+        if (index == -1) return null to null
+        
+        val prev = if (index > 0) queue[index - 1] else null
+        val next = if (index < queue.size - 1) queue[index + 1] else null
+        return prev to next
+    }
+
+    private fun preloadImage(url: String) {
+        val request = ImageRequest.Builder(context)
+            .data(url)
+            .size(800, 800) // Match NowPlaying size
+            .build()
+        context.imageLoader.enqueue(request)
     }
 
     private fun observeLyrics(songId: Long) {
         lyricsJob?.cancel()
         lyricsJob = viewModelScope.launch {
-            songRepository.getLyricsFlow(songId).collect { lyrics ->
-                val content = lyrics ?: ""
-                val parsed = LrcParser.parse(content)
-                _uiState.update { it.copy(lyrics = content, parsedLyrics = parsed) }
+            songRepository.getSongLyricsFlow(songId).collect { songLyrics ->
+                val l1 = songLyrics?.lyrics ?: ""
+                val l2 = songLyrics?.lyrics2 ?: ""
+                val useSecond = songLyrics?.isPrimarySecond ?: false
+                
+                val primaryLyrics = if (useSecond && l2.isNotBlank()) l2 else l1
+                val parsed = LrcParser.parse(primaryLyrics)
+                
+                _uiState.update { it.copy(
+                    lyrics = l1,
+                    lyrics2 = l2,
+                    isPrimarySecond = useSecond,
+                    parsedLyrics = parsed
+                ) }
             }
         }
     }
@@ -124,7 +196,11 @@ class NowPlayingViewModel @Inject constructor(
         statusJob = viewModelScope.launch {
             songRepository.getSongById(songId).collect { song ->
                 song?.let { updatedSong ->
-                    _uiState.update { it.copy(currentSong = updatedSong) }
+                    _uiState.update { 
+                        if (it.currentSong?.id != updatedSong.id || it.currentSong?.isFavorite != updatedSong.isFavorite) {
+                            it.copy(currentSong = updatedSong)
+                        } else it
+                    }
                 }
             }
         }
@@ -161,6 +237,10 @@ class NowPlayingViewModel @Inject constructor(
 
     fun toggleRepeatMode() {
         playerManager.toggleRepeatMode()
+    }
+
+    fun toggleTranslation() {
+        _uiState.update { it.copy(showTranslation = !it.showTranslation) }
     }
 
     fun playSpecificSong(song: Song) {

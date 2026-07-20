@@ -19,7 +19,7 @@ import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SongsFragment : Fragment(R.layout.fragment_songs) {
-    
+
     private val viewModel: LibraryViewModel by activityViewModels()
     private var _binding: FragmentSongsBinding? = null
     private val binding get() = _binding!!
@@ -28,16 +28,17 @@ class SongsFragment : Fragment(R.layout.fragment_songs) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         _binding = FragmentSongsBinding.bind(view)
-        
+
         setupRecyclerView()
         observeSongs()
     }
 
     private fun setupRecyclerView() {
         songAdapter = SongAdapter(
-            onSongClick = { song -> 
+            onSongClick = { song ->
                 val songs = songAdapter.currentList
-                val index = songs.indexOf(song)
+                // Optimización: comparar por id (Long) en vez de equals() completo del data class
+                val index = songs.indexOfFirst { it.id == song.id }
                 viewModel.playWithQueue(songs, if (index != -1) index else 0)
             },
             onMoreOptionsClick = { song -> showSongOptions(song) }
@@ -67,7 +68,7 @@ class SongsFragment : Fragment(R.layout.fragment_songs) {
         val view = layoutInflater.inflate(R.layout.dialog_edit_song, null)
         val etTitle = view.findViewById<EditText>(R.id.et_title)
         val etArtist = view.findViewById<EditText>(R.id.et_artist)
-        
+
         etTitle.setText(song.title)
         etArtist.setText(song.artist)
 
@@ -88,11 +89,11 @@ class SongsFragment : Fragment(R.layout.fragment_songs) {
     private fun showEditLyricsDialog(song: Song) {
         val view = layoutInflater.inflate(R.layout.dialog_edit_lyrics, null)
         val etLyrics = view.findViewById<EditText>(R.id.et_lyrics)
-        
+
         lifecycleScope.launch {
             val currentLyrics = viewModel.getLyrics(song.id)
             etLyrics.setText(currentLyrics)
-            
+
             AlertDialog.Builder(requireContext())
                 .setTitle("Editar letras (LRC)")
                 .setView(view)
@@ -116,19 +117,22 @@ class SongsFragment : Fragment(R.layout.fragment_songs) {
     }
 
     private fun observeSongs() {
+        // Optimización: un solo repeatOnLifecycle registrando un único observer de
+        // ciclo de vida, con los dos collectors corriendo dentro como hijos
+        // (antes eran dos repeatOnLifecycle independientes = doble overhead de lifecycle)
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.uiState.collect { state ->
-                    songAdapter.submitList(state.songs)
+                launch {
+                    viewModel.songs.collect { songs ->
+                        songAdapter.submitList(songs)
+                    }
                 }
-            }
-        }
 
-        // Resaltar canción actual
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.currentSongState.collect { song ->
-                    songAdapter.setCurrentPlayingId(song?.id ?: -1)
+                // Resaltar canción actual
+                launch {
+                    viewModel.currentSongState.collect { song ->
+                        songAdapter.setCurrentPlayingId(song?.id ?: -1)
+                    }
                 }
             }
         }
