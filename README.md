@@ -66,9 +66,9 @@ Hush ofrece una alternativa minimalista: un reproductor MP3 con una interfaz flu
 
 ## 📸 Capturas de pantalla
 
-| Login | Biblioteca | Playlists | Reproductor |
-|-------|------------|-----------|-------------|
-| ![Login](screenshots/Login.png) | ![Biblioteca](screenshots/Biblioteca.png) | ![Playlists](screenshots/Playlists.png) | ![Reproductor](screenshots/NowPlaying.png) |
+| Login | Biblioteca | Playlists | Reproductor | Cola |
+|-------|------------|-----------|-------------|------|
+| ![Login](screenshots/Login.png) | ![Biblioteca](screenshots/Biblioteca.png) | ![Playlists](screenshots/Playlists.png) | ![Reproductor](screenshots/NowPlaying.png) | ![Cola](screenshots/Fila%20de%20reproducci%C3%B3n.png) |
 
 ## 📚 Documentación
 
