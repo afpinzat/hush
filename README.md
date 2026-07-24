@@ -72,8 +72,7 @@ Hush ofrece una alternativa minimalista: un reproductor MP3 con una interfaz flu
 
 ## 📚 Documentación
 
-Para más detalles técnicos y de usuario, consulta los siguientes manuales:
-- [📄 Manual Técnico (Markdown)](TECHNICAL_MANUAL.md)
+Consulta el manual de usuario para más detalles:
 - [📕 Manual de Usuario (PDF)](MANUAL%20DE%20USUARIO%20HUSH.pdf)
 
 ## 📌 Estado del proyecto (v1.0)
