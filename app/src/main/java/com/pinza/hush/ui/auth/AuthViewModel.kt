@@ -1,5 +1,6 @@
 package com.pinza.hush.ui.auth
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseUser
@@ -30,11 +31,15 @@ class AuthViewModel @Inject constructor(
     val uiState: StateFlow<AuthUiState> = _uiState.asStateFlow()
 
     fun login(email: String, password: String) {
+        val startTime = System.currentTimeMillis()
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             authRepository.login(email, password).collect { result ->
                 result.fold(
                     onSuccess = { firebaseUser ->
+                        val duration = System.currentTimeMillis() - startTime
+                        Log.d("LoginPerf", "El login de $email tardó: $duration ms")
+
                         // ✅ GUARDAR LA SESIÓN EN DATASTORE
                         userPreferencesDataSource.saveUser(
                             id = firebaseUser.uid,
@@ -76,8 +81,11 @@ class AuthViewModel @Inject constructor(
     }
 
     fun logout() {
-        authRepository.logout()
-        _uiState.update { it.copy(user = null, isSuccess = false) }
+        viewModelScope.launch {
+            authRepository.logout()
+            userPreferencesDataSource.clearUser()
+            _uiState.update { it.copy(user = null, isSuccess = false) }
+        }
     }
 
     fun isUserLoggedIn(): Boolean {

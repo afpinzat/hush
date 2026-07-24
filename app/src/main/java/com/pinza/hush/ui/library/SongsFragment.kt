@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.pinza.hush.R
 import com.pinza.hush.data.local.model.Song
+import com.pinza.hush.data.local.model.SongLyrics
 import com.pinza.hush.databinding.FragmentSongsBinding
 import com.pinza.hush.ui.adapter.SongAdapter
 import dagger.hilt.android.AndroidEntryPoint
@@ -46,6 +47,8 @@ class SongsFragment : Fragment(R.layout.fragment_songs) {
         binding.rvSongs.apply {
             adapter = songAdapter
             layoutManager = LinearLayoutManager(requireContext())
+            setHasFixedSize(true)
+            setItemViewCacheSize(20)
         }
     }
 
@@ -89,16 +92,26 @@ class SongsFragment : Fragment(R.layout.fragment_songs) {
     private fun showEditLyricsDialog(song: Song) {
         val view = layoutInflater.inflate(R.layout.dialog_edit_lyrics, null)
         val etLyrics = view.findViewById<EditText>(R.id.et_lyrics)
+        val etLyrics2 = view.findViewById<EditText>(R.id.et_lyrics2)
+        val switchPrimary = view.findViewById<com.google.android.material.materialswitch.MaterialSwitch>(R.id.switch_primary_second)
 
         lifecycleScope.launch {
-            val currentLyrics = viewModel.getLyrics(song.id)
-            etLyrics.setText(currentLyrics)
+            val songLyrics = viewModel.getSongLyrics(song.id)
+            etLyrics.setText(songLyrics?.lyrics ?: "")
+            etLyrics2.setText(songLyrics?.lyrics2 ?: "")
+            switchPrimary.isChecked = songLyrics?.isPrimarySecond ?: false
 
             AlertDialog.Builder(requireContext())
                 .setTitle("Editar letras (LRC)")
                 .setView(view)
                 .setPositiveButton("Guardar") { _, _ ->
-                    viewModel.saveLyrics(song.id, etLyrics.text.toString())
+                    val newLyrics = SongLyrics(
+                        songId = song.id,
+                        lyrics = etLyrics.text.toString(),
+                        lyrics2 = etLyrics2.text.toString(),
+                        isPrimarySecond = switchPrimary.isChecked
+                    )
+                    viewModel.saveSongLyrics(newLyrics)
                 }
                 .setNegativeButton("Cancelar", null)
                 .show()

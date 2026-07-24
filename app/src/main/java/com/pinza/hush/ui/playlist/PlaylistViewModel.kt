@@ -63,6 +63,12 @@ class PlaylistViewModel @Inject constructor(
         }
     }
 
+    fun deletePlaylist(playlist: Playlist) {
+        viewModelScope.launch {
+            repository.deletePlaylist(playlist)
+        }
+    }
+
     // Canal de entrada para el ID
     private val _playlistId = MutableStateFlow<Long?>(null)
 

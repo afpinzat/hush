@@ -6,6 +6,8 @@ import com.pinza.hush.data.local.dao.SongDao
 import com.pinza.hush.data.local.model.Song
 import com.pinza.hush.data.local.model.SongLyrics
 import com.pinza.hush.domain.player.IPlayerManager
+import com.pinza.hush.datasource.local.UserPreferencesDataSource
+import com.pinza.hush.domain.repository.IAuthRepository
 import com.pinza.hush.domain.repository.ISongRepository
 import com.pinza.hush.domain.usecase.library.*
 import com.pinza.hush.domain.usecase.player.PlayQueueUseCase
@@ -28,7 +30,9 @@ class LibraryViewModel @Inject constructor(
     private val playSongUseCase: PlaySongUseCase,
     private val playQueueUseCase: PlayQueueUseCase,
     private val playerManager: IPlayerManager,
-    private val songRepository: ISongRepository
+    private val songRepository: ISongRepository,
+    private val authRepository: IAuthRepository,
+    private val userPreferencesDataSource: UserPreferencesDataSource
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")
@@ -134,6 +138,14 @@ class LibraryViewModel @Inject constructor(
     fun saveSongLyrics(lyrics: SongLyrics) {
         viewModelScope.launch {
             songRepository.saveSongLyrics(lyrics)
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            playerManager.stop()
+            authRepository.logout()
+            userPreferencesDataSource.clearUser()
         }
     }
 }

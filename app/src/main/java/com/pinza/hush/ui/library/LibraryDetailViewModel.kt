@@ -60,4 +60,10 @@ class LibraryDetailViewModel @Inject constructor(
                 }
         }
     }
+
+    fun removeSongFromPlaylist(playlistId: Long, songId: Long) {
+        viewModelScope.launch {
+            playlistRepository.removeSongFromPlaylist(playlistId, songId)
+        }
+    }
 }

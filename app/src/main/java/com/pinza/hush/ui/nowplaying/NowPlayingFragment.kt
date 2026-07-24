@@ -66,6 +66,7 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
     // --- Optimización: debounce de carga de artwork ante skips rápidos ---
     private var artLoadJob: kotlinx.coroutines.Job? = null
     private var hasLoadedFirstArt = false
+    private var isFirstUiObservation = true
 
     // --- Optimización: solo una extracción de Palette en curso a la vez ---
     private var paletteTask: android.os.AsyncTask<Bitmap, Void, Palette>? = null
@@ -289,17 +290,17 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
                         binding.tvArtist.text = state.currentSong?.artist
                     }
 
-                    if (currentArtUri != state.currentSong?.albumArt) {
+                    if (currentArtUri != state.currentSong?.albumArt || isFirstUiObservation) {
+                        isFirstUiObservation = false
                         currentArtUri = state.currentSong?.albumArt
                         val albumArtToLoad = state.currentSong?.albumArt
 
-                        // Optimización: debounce de 150ms. Si el usuario hace skip rápido
-                        // (varias canciones en menos de 150ms), esto evita decodificar la
-                        // imagen y generar la paleta de CADA canción "de paso" — solo se
-                        // procesa la que finalmente queda seleccionada.
+                        // Optimización: debounce solo si ya se cargó la primera vez
                         artLoadJob?.cancel()
                         artLoadJob = viewLifecycleOwner.lifecycleScope.launch {
-                            delay(150)
+                            if (hasLoadedFirstArt) {
+                                delay(150)
+                            }
                             loadArtwork(albumArtToLoad)
                         }
                     }
@@ -439,12 +440,9 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
         // Cancel previous color animator if running
         backgroundAnimator?.cancel()
 
-        // --- Optimización: los tints/colores estáticos (negro/blanco) no dependen
-        // del color animado, así que se aplican UNA sola vez, no en cada frame ---
+        // Aplicamos el tema oscuro estático (ahora negro)
         applyStaticThemeColorsOnce()
 
-        // --- Optimización: reutilizar el mismo GradientDrawable en vez de crear
-        // uno nuevo en cada frame de la animación ---
         val gradient = backgroundGradient ?: GradientDrawable().apply {
             gradientType = GradientDrawable.RADIAL_GRADIENT
             gradientRadius = 1200f
@@ -460,11 +458,11 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
                 if (_binding == null) return@addUpdateListener
                 val color = animator.animatedValue as Int
 
-                // Solo se actualizan los colores del gradiente, no se recrea el drawable
+                // Gradiente que desvanece a NEGRO
                 gradient.colors = intArrayOf(
                     color,
                     darkVibrantColor,
-                    ColorUtils.setAlphaComponent(color, 0)
+                    Color.BLACK
                 )
             }
             currentBackgroundColor = colorTo
@@ -480,36 +478,36 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
         if (staticColorsApplied) return
         staticColorsApplied = true
 
-        binding.root.setBackgroundColor(Color.WHITE)
+        binding.root.setBackgroundColor(Color.BLACK)
 
-        // Glass Effect (Low Alpha Black) para la card de letras
-        val glassColor = Color.argb(26, 0, 0, 0)
+        // Glass Effect (Low Alpha White) para la card de letras sobre fondo negro
+        val glassColor = Color.argb(40, 255, 255, 255)
         binding.cardLyrics.setCardBackgroundColor(glassColor)
-        lyricsAdapter.setActiveTextColor(Color.BLACK)
+        lyricsAdapter.setActiveTextColor(Color.WHITE)
 
-        val blackTint = ColorStateList.valueOf(Color.BLACK)
+        val whiteTint = ColorStateList.valueOf(Color.WHITE)
 
-        binding.btnPlayPause.backgroundTintList = blackTint
-        binding.btnPlayPause.iconTint = ColorStateList.valueOf(Color.WHITE)
+        binding.btnPlayPause.backgroundTintList = whiteTint
+        binding.btnPlayPause.iconTint = ColorStateList.valueOf(Color.BLACK)
 
-        binding.seekBar.progressTintList = blackTint
-        binding.seekBar.thumbTintList = blackTint
+        binding.seekBar.progressTintList = whiteTint
+        binding.seekBar.thumbTintList = whiteTint
         binding.seekBar.progressBackgroundTintList =
-            ColorStateList.valueOf(ColorUtils.setAlphaComponent(Color.BLACK, 50))
+            ColorStateList.valueOf(ColorUtils.setAlphaComponent(Color.WHITE, 100))
 
-        binding.btnNext.imageTintList = blackTint
-        binding.btnPrevious.imageTintList = blackTint
-        binding.btnRepeat.imageTintList = blackTint
-        binding.btnQueue.imageTintList = blackTint
-        binding.btnFavorite.imageTintList = blackTint
-        binding.btnAddToPlaylist.imageTintList = blackTint
-        binding.btnBack.imageTintList = blackTint
-        binding.btnMoreOptions.imageTintList = blackTint
+        binding.btnNext.imageTintList = whiteTint
+        binding.btnPrevious.imageTintList = whiteTint
+        binding.btnRepeat.imageTintList = whiteTint
+        binding.btnQueue.imageTintList = whiteTint
+        binding.btnFavorite.imageTintList = whiteTint
+        binding.btnAddToPlaylist.imageTintList = whiteTint
+        binding.btnBack.imageTintList = whiteTint
+        binding.btnMoreOptions.imageTintList = whiteTint
 
-        binding.tvSongTitle.setTextColor(Color.BLACK)
-        binding.tvArtist.setTextColor(ColorUtils.setAlphaComponent(Color.BLACK, 160))
-        binding.tvCurrentTime.setTextColor(Color.BLACK)
-        binding.tvTotalTime.setTextColor(Color.BLACK)
+        binding.tvSongTitle.setTextColor(Color.WHITE)
+        binding.tvArtist.setTextColor(ColorUtils.setAlphaComponent(Color.WHITE, 200))
+        binding.tvCurrentTime.setTextColor(Color.WHITE)
+        binding.tvTotalTime.setTextColor(Color.WHITE)
     }
 
     private fun startSmokeAnimation() {
@@ -554,7 +552,7 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
 
                 binding.viewBackground.scaleX = (4.5f * stretch) + (pushX * 0.3f)
                 binding.viewBackground.scaleY = (3.5f * squeeze) + (pushY * 0.2f)
-                binding.viewBackground.alpha = 0.85f + (pushMagnitude * 0.05f).coerceAtMost(0.1f)
+                binding.viewBackground.alpha = 0.5f + (pushMagnitude * 0.1f).coerceAtMost(0.2f) // Más transparente en negro
 
                 val screenHeight = binding.root.height.toFloat()
                 val targetY = screenHeight * 0.55f
@@ -599,6 +597,7 @@ class NowPlayingFragment : Fragment(R.layout.fragment_now_playing) {
         backgroundGradient = null
         staticColorsApplied = false
         hasLoadedFirstArt = false
+        isFirstUiObservation = true
         _binding = null
     }
 }

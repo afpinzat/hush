@@ -128,6 +128,7 @@ dependencies {
 
     androidTestImplementation(libs.kotlinx.coroutines.android)
     testImplementation(libs.kotlinx.coroutines.android)
+    implementation("com.google.firebase:firebase-perf")
 
 }
 

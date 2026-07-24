@@ -15,15 +15,8 @@
                 android:id="@+id/view_background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@android:color/white" />
-
+                android:background="@android:color/black" />
         </FrameLayout>
-
-        <!-- Capa blanca superior para asegurar que arriba predomine el blanco -->
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:drawable/screen_background_light_transparent" />
 
         <!-- Contenedor principal con padding para controles -->
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -39,7 +32,7 @@
                 android:src="@drawable/ic_expand_more_24"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@android:color/black" />
+                app:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/btn_more_options"
@@ -49,7 +42,7 @@
                 android:src="@drawable/ic_more_vert_24"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:tint="@android:color/black" />
+                app:tint="@android:color/white" />
 
             <!-- Artwork -->
             <androidx.cardview.widget.CardView
@@ -82,7 +75,7 @@
                 android:gravity="center"
                 android:textSize="22sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/card_artwork"
@@ -94,7 +87,8 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:textSize="16sp"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="@android:color/white"
+                android:alpha="0.7"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_song_title"
@@ -109,7 +103,7 @@
                 android:src="@drawable/ic_add_24"
                 app:layout_constraintBottom_toTopOf="@id/seek_bar"
                 app:layout_constraintStart_toStartOf="@id/seek_bar"
-                app:tint="@android:color/black" />
+                app:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/btn_favorite"
@@ -119,7 +113,7 @@
                 android:src="@drawable/ic_favorite_border_24"
                 app:layout_constraintBottom_toTopOf="@id/seek_bar"
                 app:layout_constraintEnd_toEndOf="@id/seek_bar"
-                app:tint="@android:color/black" />
+                app:tint="@android:color/white" />
 
             <!-- Tiempos -->
             <TextView
@@ -127,7 +121,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 tools:text="0:00"
                 app:layout_constraintStart_toStartOf="@id/seek_bar"
                 app:layout_constraintTop_toBottomOf="@id/seek_bar" />
@@ -137,7 +131,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:textColor="@android:color/black"
+                android:textColor="@android:color/white"
                 tools:text="3:45"
                 app:layout_constraintEnd_toEndOf="@id/seek_bar"
                 app:layout_constraintTop_toBottomOf="@id/seek_bar" />
@@ -148,8 +142,8 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="48dp"
-                android:progressTint="@android:color/black"
-                android:thumbTint="@android:color/black"
+                android:progressTint="@android:color/white"
+                android:thumbTint="@android:color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/tv_artist" />
@@ -183,7 +177,7 @@
                 app:layout_constraintTop_toTopOf="@id/btn_play_pause"
                 app:srcCompat="@drawable/ic_skip_previous_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="@android:color/black" />
+                app:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/btn_next"
@@ -195,7 +189,7 @@
                 app:layout_constraintTop_toTopOf="@id/btn_play_pause"
                 app:srcCompat="@drawable/ic_skip_next_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="@android:color/black" />
+                app:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/btn_repeat"
@@ -206,7 +200,7 @@
                 app:layout_constraintTop_toTopOf="@id/btn_play_pause"
                 app:srcCompat="@drawable/ic_repeat_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="@android:color/black" />
+                app:tint="@android:color/white" />
 
             <ImageButton
                 android:id="@+id/btn_queue"
@@ -217,7 +211,7 @@
                 app:layout_constraintTop_toTopOf="@id/btn_play_pause"
                 app:srcCompat="@drawable/ic_queue_music_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                app:tint="@android:color/black" />
+                app:tint="@android:color/white" />
 
             <!-- Contenedor de Letras (Efecto Cristal) -->
             <androidx.cardview.widget.CardView
@@ -228,7 +222,7 @@
                 android:layout_marginBottom="16dp"
                 app:cardCornerRadius="24dp"
                 app:cardElevation="0dp"
-                app:cardBackgroundColor="#1A000000"
+                app:cardBackgroundColor="#1AFFFFFF"
                 app:layout_constraintTop_toBottomOf="@id/btn_play_pause"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -258,7 +252,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
                     android:text="Letra no disponible"
-                    android:textColor="@android:color/black"
+                    android:textColor="@android:color/white"
                     android:alpha="0.7"
                     android:visibility="gone" />
 

@@ -12,6 +12,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.fragment.app.activityViewModels
 import com.pinza.hush.R
+import com.pinza.hush.data.local.model.Playlist
 import com.pinza.hush.databinding.FragmentPlaylistsBinding
 import com.pinza.hush.ui.adapter.PlaylistAdapter
 import com.pinza.hush.ui.library.LibraryViewModel
@@ -34,22 +35,42 @@ class PlaylistsFragment : Fragment(R.layout.fragment_playlists) {
 
         setupRecyclerView()
         observePlaylists()
-        
+
         binding.btnAddPlaylist.setOnClickListener {
             showCreatePlaylistDialog()
         }
     }
 
     private fun setupRecyclerView() {
-        adapter = PlaylistAdapter { playlist ->
-            val bundle = Bundle().apply {
-                putString("name", playlist.name)
-                putString("type", "playlist")
-                putLong("playlist_id", playlist.id)
+        adapter = PlaylistAdapter(
+            onPlaylistClick = { playlist ->
+                val bundle = Bundle().apply {
+                    putString("name", playlist.name)
+                    putString("type", "playlist")
+                    putLong("playlist_id", playlist.id)
+                }
+                findNavController().navigate(R.id.libraryDetailFragment, bundle)
+            },
+            onPlaylistLongClick = { playlist ->
+                showDeletePlaylistDialog(playlist)
             }
-            findNavController().navigate(R.id.libraryDetailFragment, bundle)
+        )
+        binding.rvPlaylists.apply {
+            adapter = this@PlaylistsFragment.adapter
+            setHasFixedSize(true)
+            setItemViewCacheSize(10)
         }
-        binding.rvPlaylists.adapter = adapter
+    }
+
+    private fun showDeletePlaylistDialog(playlist: Playlist) {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Eliminar Playlist")
+            .setMessage("¿Estás seguro de que deseas eliminar la playlist '${playlist.name}'?")
+            .setPositiveButton("Eliminar") { _, _ ->
+                viewModel.deletePlaylist(playlist)
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun showCreatePlaylistDialog() {
@@ -81,7 +102,7 @@ class PlaylistsFragment : Fragment(R.layout.fragment_playlists) {
                 }
             }
         }
-        
+
         // También observar cambios en la búsqueda para filtrar inmediatamente
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {

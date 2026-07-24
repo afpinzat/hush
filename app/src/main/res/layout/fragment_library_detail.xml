@@ -51,9 +51,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp"
         android:src="@drawable/ic_add_24"
         android:visibility="gone"
+        app:backgroundTint="#4F378B"
         app:tint="@android:color/white"
         tools:visibility="visible"
         android:contentDescription="Agregar canciones" />

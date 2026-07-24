@@ -21,9 +21,12 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import android.content.Intent
+import androidx.appcompat.app.AlertDialog
 import com.pinza.hush.R
 import com.pinza.hush.databinding.FragmentLibraryBinding
 import com.pinza.hush.ui.adapter.LibraryViewPagerAdapter
+import com.pinza.hush.ui.auth.LoginActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -70,6 +73,25 @@ class LibraryFragment : Fragment(R.layout.fragment_library) {
         binding.btnGrantPermission.setOnClickListener {
             checkPermissionsAndScan()
         }
+
+        binding.btnMenu.setOnClickListener {
+            showLogoutDialog()
+        }
+    }
+
+    private fun showLogoutDialog() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Cerrar sesión")
+            .setMessage("¿Estás seguro de que deseas salir?")
+            .setPositiveButton("Cerrar sesión") { _, _ ->
+                viewModel.logout()
+                val intent = Intent(requireContext(), LoginActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                startActivity(intent)
+                requireActivity().finish()
+            }
+            .setNegativeButton("Cancelar", null)
+            .show()
     }
 
     private fun toggleSearch() {
